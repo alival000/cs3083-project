@@ -115,6 +115,40 @@ def registerAuthCustomer():
         session['username'] = name
         return render_template('home.html')
 
+@app.route('/registerStaff', methods=['GET', 'POST'])
+def registerAuthStaff():
+    # grabs information from the forms
+    username = request.form['username']
+    password = request.form['password']
+    first_name = request.form['firstname']
+    last_name = request.form['lastname']
+    date_of_birth = request.form['dateofbirth']
+    airline_name = request.form['airlinename']
+
+    # cursor used to send queries
+    cursor = conn.cursor()
+
+    # executes query
+    query = 'SELECT * FROM airline_staff WHERE username = %s'
+    cursor.execute(query, (username))
+
+    # stores the results in a variable
+    data = cursor.fetchone()
+
+    # use fetchall() if you are expecting more than 1 data row
+    error = None
+    if data:
+        # If the previous query returns data, then user exists
+        error = "This user already exists"
+        return render_template('register.html', error=error)
+    else:
+        ins = '''INSERT INTO airline_staff (username, password, first_name, last_name, date_of_birth, airline_name) 
+                    VALUES(%s, %s, %s, %s, %s, %s)'''
+        cursor.execute(ins, (username, password, first_name, last_name, date_of_birth, airline_name))
+        conn.commit()
+        cursor.close()
+        session['username'] = username
+        return render_template('home.html')
 
 @app.route('/home')
 def home():

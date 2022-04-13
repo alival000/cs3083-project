@@ -74,26 +74,20 @@ def registerAuth():
 	if(data):
 		#If the previous query returns data, then user exists
 		error = "This user already exists"
-		return render_template('register.templates', error = error)
+		return render_template('register.html', error = error)
 	else:
 		ins = 'INSERT INTO user VALUES(%s, %s)'
 		cursor.execute(ins, (username, password))
 		conn.commit()
 		cursor.close()
-		return render_template('index.templates')
+		return render_template('index.html')
 
 @app.route('/home')
 def home():
     
     username = session['username']
     cursor = conn.cursor();
-    query = 'SELECT ts, blog_post FROM blog WHERE username = %s ORDER BY ts DESC'
-    cursor.execute(query, (username))
-    data1 = cursor.fetchall() 
-    for each in data1:
-        print(each['blog_post'])
-    cursor.close()
-    return render_template('home.templates', username=username, posts=data1)
+    return render_template('home.html', username=username)
 
 		
 @app.route('/post', methods=['GET', 'POST'])

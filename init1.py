@@ -34,16 +34,57 @@ def register():
 
 # Authenticates the login
 @app.route('/loginAuth', methods=['GET', 'POST'])
-def loginAuth():
+def loginType():
+    # grabs information from the forms
+    user_type = request.form['usertype']
+
+    if user_type == "customer":
+        return render_template('login_customer.html')
+    else:
+        return render_template('login_staff.html')
+
+
+@app.route('/loginCustomer', methods=['GET', 'POST'])
+def loginAuthCustomer():
+    # grabs information from the forms
+    email = request.form['email']
+    password = request.form['password']
+
+    # cursor used to send queries
+    cursor = conn.cursor()
+
+    # executes query
+    query = 'SELECT * FROM customer WHERE email = %s and password = %s'
+    cursor.execute(query, (email, password))
+
+    # stores the results in a variable
+    data = cursor.fetchone()
+    # use fetchall() if you are expecting more than 1 data row
+    cursor.close()
+    error = None
+    if (data):
+        # creates a session for the the user
+        # session is a built in
+        session['username'] = email
+        return redirect(url_for('home'))
+    else:
+        # returns an error message to the templates page
+        error = 'Invalid login or username'
+        return render_template('login.html', error=error)
+
+@app.route('/loginStaff', methods=['GET', 'POST'])
+def loginAuthStaff():
     # grabs information from the forms
     username = request.form['username']
     password = request.form['password']
 
     # cursor used to send queries
     cursor = conn.cursor()
+
     # executes query
-    query = 'SELECT * FROM user WHERE username = %s and password = %s'
+    query = 'SELECT * FROM airline_staff WHERE username = %s and password = %s'
     cursor.execute(query, (username, password))
+
     # stores the results in a variable
     data = cursor.fetchone()
     # use fetchall() if you are expecting more than 1 data row
@@ -58,7 +99,6 @@ def loginAuth():
         # returns an error message to the templates page
         error = 'Invalid login or username'
         return render_template('login.html', error=error)
-
 
 # Authenticates the register
 @app.route('/registerAuth', methods=['GET', 'POST'])
@@ -115,6 +155,7 @@ def registerAuthCustomer():
         session['username'] = name
         return render_template('home.html')
 
+
 @app.route('/registerStaff', methods=['GET', 'POST'])
 def registerAuthStaff():
     # grabs information from the forms
@@ -149,6 +190,7 @@ def registerAuthStaff():
         cursor.close()
         session['username'] = username
         return render_template('home.html')
+
 
 @app.route('/home')
 def home():

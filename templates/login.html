@@ -3,22 +3,19 @@
 </head>
 <body>
 <form action="/loginAuth" method="POST">
+	<p>Are you logging in as a Customer or Staff?</p>
+
 	<label for="usertype">Sign in as:</label>
 	<select id="usertype" name="usertype">
-		<option value="airlinestaff">Airline Staff</option>
 		<option value="customer">Customer</option>
+		<option value="airlinestaff">Airline Staff</option>
 	</select></br>
-	<input type="text" name = "username" placeholder="username" required/> </br>
-	<input type="password" name = "password" placeholder="password" required/></br>
-	<input type="submit" value = Login />
+	<input type="submit" value = "Register" />
+
 	{% if error %}
 		<p class="error"><strong>Error:</strong> {{error}}</p>
 	{% endif %}
 </form>
-
 <a href="/">Go back</a>
-
 </body>
-
-
 </html>

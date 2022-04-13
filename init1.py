@@ -9,7 +9,7 @@ app = Flask(__name__)
 conn = pymysql.connect(host='localhost',
                        user='root',
                        password='',
-                       db='blog',
+                       db='airport_project',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
 
@@ -51,7 +51,7 @@ def loginAuth():
 		session['username'] = username
 		return redirect(url_for('home'))
 	else:
-		#returns an error message to the html page
+		#returns an error message to the templates page
 		error = 'Invalid login or username'
 		return render_template('login.html', error=error)
 
@@ -74,13 +74,13 @@ def registerAuth():
 	if(data):
 		#If the previous query returns data, then user exists
 		error = "This user already exists"
-		return render_template('register.html', error = error)
+		return render_template('register.templates', error = error)
 	else:
 		ins = 'INSERT INTO user VALUES(%s, %s)'
 		cursor.execute(ins, (username, password))
 		conn.commit()
 		cursor.close()
-		return render_template('index.html')
+		return render_template('index.templates')
 
 @app.route('/home')
 def home():
@@ -93,7 +93,7 @@ def home():
     for each in data1:
         print(each['blog_post'])
     cursor.close()
-    return render_template('home.html', username=username, posts=data1)
+    return render_template('home.templates', username=username, posts=data1)
 
 		
 @app.route('/post', methods=['GET', 'POST'])

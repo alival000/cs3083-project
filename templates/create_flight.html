@@ -2,7 +2,38 @@
 <head>
 </head>
 <body>
+<form action="/createFlightConfirmation" method="POST">
+    <input type="text" name = "flightnum" placeholder="flight number" required/> </br></br>
 
+    <label>Departure Information:</label></br>
+    <input type="date" name = "departuredate" placeholder="departure date" required/> </br>
+    <input type="time" name = "departuretime" placeholder="departure time" required/> </br>
+    <input type="text" name = "departureairport" placeholder="departure airport: XXX" required/> </br></br>
+
+    <label>Arrival Information:</label></br>
+    <input type="date" name = "arrivaldate" placeholder="arrival date" required/> </br>
+    <input type="time" name = "arrivaltime" placeholder="arrival time" required/> </br>
+    <input type="text" name = "arrivalairport" placeholder="arrival airport: XXX" required/> </br></br>
+
+    <input type="text" name = "baseprice" placeholder="base price" required/> </br>
+    <input type="text" name = "airplaneid" placeholder="airplane id" required/> </br>
+    <input type="text" name = "airlinename" placeholder="airline name" required/> </br></br>
+
+	<label for="status">Flight Status</label>
+	<select id="status" name="status">
+		<option value="ontime">ON-TIME</option>
+		<option value="delayed">DELAYED</option>
+        <option value="cancelled">CANCELLED</option>
+	</select></br>
+
+	<input type="submit" value = Register />
+	{% if error %}
+		<p class="error"><strong>Error:</strong> {{error}}</p>
+	{% endif %}
+    {% if success %}
+		<p ><strong>Success:</strong> {{success}}</p>
+	{% endif %}
+</form>
 <a href="/">Go back</a>
 </body>
 </html>

@@ -199,6 +199,47 @@ def book():
 def create():
     return render_template('create_flight.html')
 
+@app.route('/createFlightConfirmation', methods=['GET', 'POST'])
+def create_confirmation():
+    flight_num = request.form['flightnum']
+    departure_date = request.form['departuredate']
+    departure_time = request.form['departuretime']
+    departure_airport = request.form['departureairport']
+    arrival_date = request.form['arrivaldate']
+    arrival_time = request.form['arrivaltime']
+    arrival_airport = request.form['arrivalairport']
+    base_price = request.form['baseprice']
+    airplane_id = request.form['airplaneid']
+    airline_name = request.form['airlinename']
+    flight_status = request.form['status']
+
+    # cursor used to send queries
+    cursor = conn.cursor()
+
+    # executes query
+    query = 'SELECT * FROM flight where flight_num = %s AND departure_date = %s AND departure_time = %s'
+    cursor.execute(query, (flight_num, departure_date, departure_time))
+
+    # stores the results in a variable
+    data = cursor.fetchone()
+    # use fetchall() if you are expecting more than 1 data row
+    error = None
+    if (data):
+        cursor.close()
+        # If the previous query returns data, then user exists
+        error = "This flight already exists"
+        return render_template('create_flight.html', error=error)
+    else:
+        query = '''INSERT INTO flight (flight_num, departure_date, departure_time, departure_airport, arrival_date,
+                               arrival_time, arrival_airport, base_price, airplane_id, airline_name, flight_status) 
+                               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''
+        cursor.execute(query, (flight_num, departure_date, departure_time, departure_airport, arrival_date,
+                               arrival_time, arrival_airport, base_price, airplane_id, airline_name, flight_status))
+        conn.commit()
+        cursor.close()
+        success = "Flight successfully added"
+        return render_template('create_flight.html', success=success)
+
 @app.route('/home')
 def home():
     username = session['username']

@@ -66,7 +66,7 @@ def loginAuthCustomer():
         # creates a session for the the user
         # session is a built in
         session['username'] = email
-        return redirect(url_for('home'))
+        return render_template('home.html', username=email, customer=True)
     else:
         # returns an error message to the templates page
         error = 'Invalid login or username'
@@ -94,7 +94,7 @@ def loginAuthStaff():
         # creates a session for the the user
         # session is a built in
         session['username'] = username
-        return redirect(url_for('home'))
+        return render_template('home.html', username=username, staff=True)
     else:
         # returns an error message to the templates page
         error = 'Invalid login or username'
@@ -153,7 +153,7 @@ def registerAuthCustomer():
         conn.commit()
         cursor.close()
         session['username'] = name
-        return render_template('home.html')
+        return render_template('home.html', username=name, customer=True)
 
 
 @app.route('/registerStaff', methods=['GET', 'POST'])
@@ -189,13 +189,21 @@ def registerAuthStaff():
         conn.commit()
         cursor.close()
         session['username'] = username
-        return render_template('home.html')
+        return render_template('home.html', username=first_name, staff=True)
 
+@app.route('/bookFlight')
+def book():
+    return render_template('book_flight.html')
+
+@app.route('/createFlight')
+def create():
+    return render_template('create_flight.html')
 
 @app.route('/home')
 def home():
     username = session['username']
     cursor = conn.cursor();
+
     return render_template('home.html', username=username)
 
 

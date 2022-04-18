@@ -13,7 +13,18 @@
 </style>
 
 <!-- if customer, add book flight button -->
+{% if customer %}
+	<form action="/bookFlight" method="GET">
+		<button type="submit">Book Flight</button>
+	</form>
+{% endif %}
+
 <!-- if staff, add add flight button -->
+{% if staff %}
+	<form action="/createFlight" method="GET">
+		<button type="submit">Create Flight</button>
+	</form>
+{% endif %}
 
 <!-- Departures -->
 <!-- Arrivals -->

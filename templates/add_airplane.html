@@ -1,0 +1,56 @@
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<head>
+    <style>
+        table,
+        th,
+        tbody,
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
+</head>
+<body>
+
+    <label>Current Airplanes</label></br>
+    <table>
+        <thead><strong>
+            <tr>
+                <th>Airplane ID</th>
+                <th>Number of Seats</th>
+                <th>Manufacturer</th>
+                <th>Age</th>
+            </tr>
+        </strong></thead>
+        <tbody>
+        {% for line in data %}
+            <tr>
+                <td>{{line['Airplane_id']}}</td>
+                <td>{{line['Seat_num']}}</td>
+                <td>{{line['Manufacturer']}}</td>
+                <td>{{line['Age']}}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table></br></br>
+
+<form action="/addAirplaneConfirmation" method="POST">
+    <label>Add Airplane</label></br></br>
+    <input type="text" name = "airplaneid" placeholder="airplane id" required/> </br>
+    <input type="number" name = "seatnum" placeholder="number of seats" required/> </br>
+    <input type="text" name = "manufacturer" placeholder="manufacturer" required/> </br>
+    <input type="number" name = "age" placeholder="age" required/> </br>
+ </br></br>
+
+	<input type="submit" value = "Add" /></br></br>
+
+	{% if error %}
+		<p class="error"><strong>Error:</strong> {{error}}</p>
+	{% endif %}
+    {% if success %}
+		<p ><strong>Success:</strong> {{success}}</p>
+	{% endif %}
+</form>
+<a href="/">Go back</a>
+</body>
+</html>

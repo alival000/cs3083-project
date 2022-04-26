@@ -299,6 +299,52 @@ def change_flight_status_confirmation():
     success = "Flight successfully changed"
     return render_template('change_flight.html', data=data, success=success)
 
+@app.route('/addAirplane')
+def add_airplane():
+    cursor = conn.cursor()
+
+    # find current staff' airline
+    query = "SELECT airline_name FROM airline_staff WHERE username = %s"
+    cursor.execute(query, session['username'])
+    data = cursor.fetchone()
+
+    # find airplanes owned by that airline
+    query = '''SELECT * FROM airplane WHERE owner = %s'''
+    cursor.execute(query, (data['airline_name']))
+    data = cursor.fetchall()
+
+    cursor.close()
+
+    return render_template('add_airplane.html', data=data)
+
+@app.route('/addAirplaneConfirmation', methods=['GET', 'POST'])
+def add_airplane_confirmation():
+    airplane_id = request.form['airplaneid']
+    seat_num = request.form['seatnum']
+    manufacturer = request.form['manufacturer']
+    age = request.form['age']
+
+    cursor = conn.cursor()
+
+    # find current staff' airline
+    query = "SELECT airline_name FROM airline_staff WHERE username = %s"
+    cursor.execute(query, session['username'])
+    data = cursor.fetchone()
+    airline_name = data['airline_name']
+
+    query = '''INSERT INTO airplane VALUES (%s, %s, %s, %s, %s)'''
+    cursor.execute(query, (airplane_id, airline_name, seat_num, manufacturer, age))
+    conn.commit()
+
+    # find airplanes owned by that airline
+    query = '''SELECT * FROM airplane WHERE owner = %s'''
+    cursor.execute(query, (airline_name))
+    data = cursor.fetchall()
+
+    cursor.close();
+    success = "Airplane inserted successfully"
+    return render_template('add_airplane.html', data=data, success=success)
+
 @app.route('/home')
 def home():
     username = session['username']

@@ -332,7 +332,7 @@ def add_airplane_confirmation():
     data = cursor.fetchone()
     airline_name = data['airline_name']
 
-    query = '''INSERT INTO airplane VALUES (%s, %s, %s, %s, %s)'''
+    query = "INSERT INTO airplane VALUES (%s, %s, %s, %s, %s)"
     cursor.execute(query, (airplane_id, airline_name, seat_num, manufacturer, age))
     conn.commit()
 
@@ -344,6 +344,43 @@ def add_airplane_confirmation():
     cursor.close();
     success = "Airplane inserted successfully"
     return render_template('add_airplane.html', data=data, success=success)
+
+@app.route('/addAirport')
+def add_airport():
+    cursor = conn.cursor()
+
+    # find all airports
+    query = "SELECT * FROM airport"
+    cursor.execute(query)
+    data = cursor.fetchall()
+
+    cursor.close()
+
+    return render_template('add_airport.html', data=data)
+
+@app.route('/addAirportConfirmation', methods=['GET', 'POST'])
+def add_airport_confirmation():
+    airport_code = request.form['airportcode']
+    name = request.form['name']
+    city = request.form['city']
+    country = request.form['country']
+    airport_type = request.form['airporttype']
+
+    cursor = conn.cursor()
+
+    query = 'INSERT INTO airport VALUES (%s, %s, %s, %s, %s)'
+    cursor.execute(query, (airport_code, name, city, country, airport_type))
+    conn.commit()
+
+    # find all airports
+    query = '''SELECT * FROM airport'''
+    cursor.execute(query)
+    data = cursor.fetchall()
+
+    cursor.close()
+
+    success = "Airport successfully added"
+    return render_template('add_airport.html', data=data, success=success)
 
 @app.route('/home')
 def home():

@@ -1,0 +1,64 @@
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<head>
+    <style>
+        table,
+        th,
+        tbody,
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
+</head>
+<body>
+    <label>Airports</label></br>
+    <table>
+        <thead><strong>
+            <tr>
+                <th>Airport Code</th>
+                <th>Airport Name</th>
+                <th>City</th>
+                <th>Country</th>
+                <th>Domestic? International?</th>
+            </tr>
+        </strong></thead>
+        <tbody>
+        {% for line in data %}
+            <tr>
+                <td>{{line['Airport_code']}}</td>
+                <td>{{line['Name']}}</td>
+                <td>{{line['City']}}</td>
+                <td>{{line['Country']}}</td>
+                <td>{{line['Airport_type']}}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table></br>
+
+
+<form action="/addAirportConfirmation" method="POST">
+    <input type="text" name = "airportcode" placeholder="airport code: XXX" required/> </br>
+    <input type="text" name = "name" placeholder="airport name" required/> </br>
+    <input type="text" name = "city" placeholder="city" required/> </br>
+    <input type="text" name = "country" placeholder="country" required/> </br>
+    <label for="airporttype">Airport Type</label>
+	<select id="airporttype" name="airporttype">
+		<option value="Domestic">Domestic</option>
+		<option value="International">International</option>
+        <option value="Both">Both</option>
+	</select></br></br>
+
+	<input type="submit" value = Register /></br></br>
+
+
+
+	{% if error %}
+		<p class="error"><strong>Error:</strong> {{error}}</p>
+	{% endif %}
+    {% if success %}
+		<p ><strong>Success:</strong> {{success}}</p>
+	{% endif %}
+</form>
+<a href="/home">Go back</a>
+</body>
+</html>

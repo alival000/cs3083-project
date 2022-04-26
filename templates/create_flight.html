@@ -1,5 +1,14 @@
-<html>
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
 <head>
+    <style>
+        table,
+        th,
+        tbody,
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
 </head>
 <body>
 <form action="/createFlightConfirmation" method="POST">
@@ -26,7 +35,45 @@
         <option value="CANCELLED">CANCELLED</option>
 	</select></br>
 
-	<input type="submit" value = Register />
+	<input type="submit" value = Register /></br></br>
+
+    <label>Upcoming Flights (Next 30 Days)</label></br>
+    <table>
+        <thead><strong>
+            <tr>
+                <th>Flight Number</th>
+                <th>Departure Date</th>
+                <th>Departure Time</th>
+                <th>Departure Airport</th>
+                <th>Arrival Date</th>
+                <th>Arrival Time</th>
+                <th>Arrival Airport</th>
+                <th>Base Price</th>
+                <th>Airplane ID</th>
+                <th>Airline</th>
+                <th>Flight Status</th>
+            </tr>
+        </strong></thead>
+        <tbody>
+        {% for line in data %}
+            <tr>
+                <td>{{line['Flight_num']}}</td>
+                <td>{{line['Departure_date']}}</td>
+                <td>{{line['Departure_time']}}</td>
+                <td>{{line['Departure_airport']}}</td>
+                <td>{{line['Arrival_date']}}</td>
+                <td>{{line['Arrival_time']}}</td>
+                <td>{{line['Arrival_airport']}}</td>
+                <td>{{line['Base_price']}}</td>
+                <td>{{line['Airplane_id']}}</td>
+                <td>{{line['Airline_name']}}</td>
+                <td>{{line['Flight_status']}}</td>
+
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
 	{% if error %}
 		<p class="error"><strong>Error:</strong> {{error}}</p>
 	{% endif %}

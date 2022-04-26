@@ -252,6 +252,53 @@ def create_confirmation():
         success = "Flight successfully added"
         return render_template('create_flight.html', success=success)
 
+@app.route('/changeFlight')
+def change_flight_status():
+    cursor = conn.cursor()
+
+    # find current staff's airline
+    query = "SELECT airline_name FROM airline_staff WHERE username = %s"
+    cursor.execute(query, session['username'])
+    data = cursor.fetchone()
+
+    # find future flights
+    query = '''SELECT * FROM flight WHERE departure_date >= NOW() AND airline_name = %s'''
+    cursor.execute(query, (data['airline_name']))
+    data = cursor.fetchall()
+
+    cursor.close()
+
+    return render_template('change_flight.html', data=data)
+
+@app.route('/changeFlightStatus', methods=['GET', 'POST'])
+def change_flight_status_confirmation():
+    flight_num = request.form['flightnum']
+    departure_date = request.form['departuredate']
+    departure_time = request.form['departuretime']
+    flight_status = request.form['status']
+
+    cursor = conn.cursor()
+
+    query = '''UPDATE flight SET flight_status = %s WHERE flight.flight_num = %s 
+                AND flight.departure_date = %s AND flight.departure_time = %s'''
+    cursor.execute(query, (flight_status, flight_num, departure_date, departure_time))
+
+    conn.commit()
+
+    # find current staff's airline
+    query = "SELECT airline_name FROM airline_staff WHERE username = %s"
+    cursor.execute(query, session['username'])
+    data = cursor.fetchone()
+
+    # find future flights
+    query = '''SELECT * FROM flight WHERE departure_date >= NOW() AND airline_name = %s'''
+    cursor.execute(query, (data['airline_name']))
+    data = cursor.fetchall()
+
+    cursor.close()
+    success = "Flight successfully changed"
+    return render_template('change_flight.html', data=data, success=success)
+
 @app.route('/home')
 def home():
     username = session['username']

@@ -16,6 +16,22 @@
 	<p class="message">You are logged in {{message}}.</p> </br>
 	</br>
 {% endif %}
+
+<h1>Search for Future Flights</h1>
+<form action='/searchFutureFlights' method='POST'>
+	<input type="text" name = "sourceairport" placeholder = "departure airport: XXX" required/></br>
+	<input type="text" name = "destinationairport" placeholder = "arrival airport: XXX" required/></br>
+	<input type="date" name = "departuredate" placeholder = "departure date" required/></br>
+	<input type="submit" value = "Search"/>
+</form>
+
+<h2>Search Flight Status</h2>
+<form action='/searchActiveFlights' method='POST'>
+	<input type="text" name = "airlinename" placeholder = "airline" required/></br>
+	<input type="text" name = "flightnum" placeholder = "flight number" required/></br>
+	<input type="text" name = "departureairport" placeholder = "departure airport: XXX" required/></br>
+	<input type="text" name = "arrivalairport" placeholder = "arrival airport: XXX" required/></br>
+	<input type="submit" value = "Search"/>
 </body>
 
 </html>

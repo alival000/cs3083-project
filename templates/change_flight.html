@@ -1,0 +1,83 @@
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<head>
+    <style>
+        table,
+        th,
+        tbody,
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
+</head>
+<body>
+
+    <label>Upcoming Flights</label></br>
+    <table>
+        <thead><strong>
+            <tr>
+                <th>Flight Number</th>
+                <th>Departure Date</th>
+                <th>Departure Time</th>
+                <th>Departure Airport</th>
+                <th>Arrival Date</th>
+                <th>Arrival Time</th>
+                <th>Arrival Airport</th>
+                <th>Base Price</th>
+                <th>Airplane ID</th>
+                <th>Airline</th>
+                <th>Flight Status</th>
+            </tr>
+        </strong></thead>
+        <tbody>
+        {% for line in data %}
+            <tr>
+                <td>{{line['Flight_num']}}</td>
+                <td>{{line['Departure_date']}}</td>
+                <td>{{line['Departure_time']}}</td>
+                <td>{{line['Departure_airport']}}</td>
+                <td>{{line['Arrival_date']}}</td>
+                <td>{{line['Arrival_time']}}</td>
+                <td>{{line['Arrival_airport']}}</td>
+                <td>{{line['Base_price']}}</td>
+                <td>{{line['Airplane_id']}}</td>
+                <td>{{line['Airline_name']}}</td>
+                <td>{{line['Flight_status']}}</td>
+
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table></br></br>
+
+<form action="/changeFlightStatus" method="POST">
+    <label>Enter flight information for flight out want to change</label></br></br>
+
+    <label>Flight Number</label></br>
+    <input type="text" name = "flightnum" placeholder="flight number" required/> </br></br>
+
+    <label>Departure Date</label></br>
+    <input type="date" name = "departuredate" placeholder="departure date" required/> </br></br>
+
+    <label>Departure Time</label></br>
+    <input type="time" name = "departuretime" placeholder="departure time" required/> </br></br>
+
+    <label>Enter flight information changes</label></br>
+    <label for="status">Flight Status</label>
+	<select id="status" name="status">
+		<option value="ON-TIME">ON-TIME</option>
+		<option value="DELAYED">DELAYED</option>
+        <option value="CANCELLED">CANCELLED</option>
+	</select></br>
+
+	<input type="submit" value = "Change" /></br></br>
+
+	{% if error %}
+		<p class="error"><strong>Error:</strong> {{error}}</p>
+	{% endif %}
+    {% if success %}
+		<p ><strong>Success:</strong> {{success}}</p>
+	{% endif %}
+</form>
+<a href="/">Go back</a>
+</body>
+</html>

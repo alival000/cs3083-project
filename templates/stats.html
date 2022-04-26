@@ -1,0 +1,44 @@
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<head>
+    <style>
+        table,
+        th,
+        tbody,
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
+</head>
+<body>
+    <label>Flights taken</label>
+    <table>
+        <thead><strong>
+            <tr>
+                <th>Flight number</th>
+                <th>Departure date</th>
+                <th>Departure time</th>
+                <th>Departure airport</th>
+                <th>Arrival date</th>
+                <th>Arrival time</th>
+                <th>Arrival airport</th>
+            </tr>
+        </strong></thead>
+        <tbody>
+        {% for flight in flights %}
+            <tr>
+                <td>{{flight['Flight_num']}}</td>
+                <td>{{flight['Departure_date']}}</td>
+                <td>{{flight['Departure_time']}}</td>
+                <td>{{flight['Departure_airport']}}</td>
+                <td>{{flight['Arrival_date']}}</td>
+                <td>{{flight['Arrival_time']}}</td>
+                <td>{{flight['Arrival_airport']}}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table></br>
+
+<a href="/home">Go back</a>
+</body>
+</html>

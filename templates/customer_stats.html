@@ -1,0 +1,49 @@
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<head>
+    <style>
+        table,
+        th,
+        tbody,
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <thead><strong>
+            <tr>
+                <th>Most Frequent Flyer</th>
+            </tr>
+        </strong></thead>
+        <tbody>
+        {% for name in freq_customer %}
+            <tr>
+                <td>{{name['Name']}}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table></br>
+
+
+<form action="/listCustomerFlights" method="POST">
+    <label for="customerflights">Choose a customer to view their flights</label>
+	<select id="customerflights" name="customerflights">
+        {% for customer in customers %}
+            <option value = {{customer['email']}}>{{customer['name']}}</option>
+        {% endfor %}
+	</select></br></br>
+
+	<input type="submit" value = Search /></br></br>
+
+	{% if error %}
+		<p class="error"><strong>Error:</strong> {{error}}</p>
+	{% endif %}
+    {% if success %}
+		<p ><strong>Success:</strong> {{success}}</p>
+	{% endif %}
+</form>
+<a href="/home">Go back</a>
+</body>
+</html>

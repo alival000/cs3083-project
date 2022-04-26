@@ -382,6 +382,63 @@ def add_airport_confirmation():
     success = "Airport successfully added"
     return render_template('add_airport.html', data=data, success=success)
 
+@app.route('/customerStats')
+def customer_statistics():
+    cursor = conn.cursor()
+
+    # find current staff' airline
+    query = "SELECT airline_name FROM airline_staff WHERE username = %s"
+    cursor.execute(query, session['username'])
+    data = cursor.fetchone()
+    airline_name = data['airline_name']
+
+    # find all tickets from the airline in the last year
+    query = '''SELECT Name 
+               FROM customer JOIN (SELECT Customer_email, MAX(total_tickets) 
+                                   FROM (SELECT customer_email, COUNT(Customer_email) as total_tickets 
+                                         FROM ticket NATURAL JOIN purchases 
+                                         WHERE airline_name = %s 
+                                         AND purchases_date >= NOW() - INTERVAL 1 YEAR 
+                                         AND purchases_date <= NOW() 
+                                         GROUP BY customer_email) as a) as b 
+               WHERE customer.Email = b.customer_email;'''
+    cursor.execute(query, (airline_name))
+    freq_customer = cursor.fetchall()
+
+    query = 'SELECT name, email FROM customer'
+    cursor.execute(query)
+    customers = cursor.fetchall()
+
+    cursor.close()
+
+    return render_template('customer_stats.html', freq_customer=freq_customer, customers=customers)
+
+@app.route('/listCustomerFlights', methods=['GET', 'POST'])
+def list_customer_flights():
+    email = request.form['customerflights']
+
+    cursor = conn.cursor()
+
+    # find current staff' airline
+    query = "SELECT airline_name FROM airline_staff WHERE username = %s"
+    cursor.execute(query, session['username'])
+    data = cursor.fetchone()
+    airline_name = data['airline_name']
+
+    query = '''SELECT DISTINCT flight.Flight_num, flight.Departure_date, flight.Departure_time, 
+               flight.Departure_airport, flight.Arrival_date, flight.Arrival_time, flight.Arrival_airport 
+               FROM customer, ticket, flight, purchases 
+               WHERE customer.email = purchases.customer_email 
+               AND purchases.ticket_id = ticket.ticket_id 
+               AND ticket.flight_num = flight.flight_num 
+               AND flight.airline_name = %s 
+               AND customer.email = %s'''
+    cursor.execute(query, (airline_name, email))
+    flights = cursor.fetchall()
+
+    cursor.close()
+    return render_template('stats.html', name=email, flights=flights)
+
 @app.route('/home')
 def home():
     username = session['username']

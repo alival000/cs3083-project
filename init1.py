@@ -199,7 +199,7 @@ def book():
 def create():
     cursor = conn.cursor()
 
-    # find current staff's flight
+    # find current staff's airline
     query = "SELECT airline_name FROM airline_staff WHERE username = %s"
     cursor.execute(query, session['username'])
     data = cursor.fetchone()

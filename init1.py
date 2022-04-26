@@ -199,8 +199,14 @@ def book():
 def create():
     cursor = conn.cursor()
 
-    query = "SELECT * FROM flight WHERE departure_date >= NOW() AND departure_date <= NOW() + INTERVAL 30 DAY"
-    cursor.execute(query)
+    # find current staff's flight
+    query = "SELECT airline_name FROM airline_staff WHERE username = %s"
+    cursor.execute(query, session['username'])
+    data = cursor.fetchone()
+
+    query = '''SELECT * FROM flight WHERE departure_date >= NOW() AND 
+                departure_date <= NOW() + INTERVAL 30 DAY AND airline_name = %s'''
+    cursor.execute(query, (data['airline_name']))
     data = cursor.fetchall()
 
     return render_template('create_flight.html', data=data)

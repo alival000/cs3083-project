@@ -197,7 +197,19 @@ def book():
 
 @app.route('/createFlight')
 def create():
-    return render_template('create_flight.html')
+    cursor = conn.cursor()
+
+    # find current staff's flight
+    query = "SELECT airline_name FROM airline_staff WHERE username = %s"
+    cursor.execute(query, session['username'])
+    data = cursor.fetchone()
+
+    query = '''SELECT * FROM flight WHERE departure_date >= NOW() AND 
+                departure_date <= NOW() + INTERVAL 30 DAY AND airline_name = %s'''
+    cursor.execute(query, (data['airline_name']))
+    data = cursor.fetchall()
+
+    return render_template('create_flight.html', data=data)
 
 @app.route('/createFlightConfirmation', methods=['GET', 'POST'])
 def create_confirmation():

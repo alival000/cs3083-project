@@ -1,0 +1,56 @@
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<head>
+    <style>
+        table,
+        th,
+        tbody,
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
+</head>
+<body>
+    <label>Most Popular Destinations Last Month</label>
+    <table>
+        <thead><strong>
+            <tr>
+                <th>Airport Code</th>
+                <th>Name</th>
+                <th>Number of Visitors</th>
+            </tr>
+        </strong></thead>
+        <tbody>
+        {% for dest in month %}
+            <tr>
+                <td>{{dest['Airport_code']}}</td>
+                <td>{{dest['Name']}}</td>
+                <td>{{dest['Visitors']}}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table></br>
+
+    <label>Most Popular Destinations Last Year</label>
+    <table>
+        <thead><strong>
+            <tr>
+                <th>Airport Code</th>
+                <th>Name</th>
+                <th>Number of Visitors</th>
+            </tr>
+        </strong></thead>
+        <tbody>
+        {% for dest in year %}
+            <tr>
+                <td>{{dest['Airport_code']}}</td>
+                <td>{{dest['Name']}}</td>
+                <td>{{dest['Visitors']}}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table></br>
+
+<a href="/home">Go back</a>
+</body>
+</html>

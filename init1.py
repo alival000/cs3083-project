@@ -439,6 +439,50 @@ def list_customer_flights():
     cursor.close()
     return render_template('stats.html', name=email, flights=flights)
 
+@app.route('/destinationStats')
+def destination_statistics():
+    cursor = conn.cursor()
+
+    # find current staff' airline
+    query = "SELECT airline_name FROM airline_staff WHERE username = %s"
+    cursor.execute(query, session['username'])
+    data = cursor.fetchone()
+    airline_name = data['airline_name']
+
+    # find top 3 destinations for last month
+    query = '''SELECT airport.Airport_code, Name, Visitors 
+               FROM ( SELECT Arrival_date, Arrival_airport, COUNT(*) as visitors 
+                      FROM ticket NATURAL JOIN flight 
+                      WHERE airline_name = %s
+                      AND Arrival_date >= NOW() - INTERVAL 1 MONTH 
+                      AND Arrival_date <= NOW() 
+                      GROUP BY Arrival_airport 
+                      ORDER BY visitors DESC ) as t, airport 
+               WHERE t.arrival_airport = airport.airport_code 
+               ORDER BY visitors DESC
+               LIMIT 3;'''
+    cursor.execute(query, (airline_name))
+    destinations_month = cursor.fetchall()
+
+    # find top 3 destinations for last year
+    query = '''SELECT airport.Airport_code, Name, Visitors 
+               FROM ( SELECT Arrival_date, Arrival_airport, COUNT(*) as visitors 
+                      FROM ticket NATURAL JOIN flight 
+                      WHERE airline_name = %s 
+                      AND Arrival_date >= NOW() - INTERVAL 1 YEAR
+                      AND Arrival_date <= NOW() 
+                      GROUP BY Arrival_airport 
+                      ORDER BY visitors DESC ) as t, airport 
+               WHERE t.arrival_airport = airport.airport_code 
+               ORDER BY visitors DESC
+               LIMIT 3;'''
+    cursor.execute(query, (airline_name))
+    destinations_year = cursor.fetchall()
+
+    cursor.close()
+
+    return render_template('destination_stats.html', month=destinations_month, year=destinations_year)
+
 @app.route('/home')
 def home():
     username = session['username']

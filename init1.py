@@ -7,8 +7,9 @@ app = Flask(__name__)
 
 # Configure MySQL
 conn = pymysql.connect(host='localhost',
+                        port = 8889,
                        user='root',
-                       password='',
+                       password='root',
                        db='airport_project',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
@@ -144,9 +145,9 @@ def registerAuthCustomer():
         error = "This user already exists"
         return render_template('register.html', error=error)
     else:
-        ins = '''INSERT INTO customer (email, name, password, 
-                    building_num, street, city, state, passport_num, 
-                    passport_exp, passport_country, date_of_birth) 
+        ins = '''INSERT INTO customer (email, name, password,
+                    building_num, street, city, state, passport_num,
+                    passport_exp, passport_country, date_of_birth)
                     VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''
         cursor.execute(ins, (email, name, password, building_num, street, city,
                              state, passport_num, passport_exp, passport_country, date_of_birth))
@@ -183,7 +184,7 @@ def registerAuthStaff():
         error = "This user already exists"
         return render_template('register.html', error=error)
     else:
-        ins = '''INSERT INTO airline_staff (username, password, first_name, last_name, date_of_birth, airline_name) 
+        ins = '''INSERT INTO airline_staff (username, password, first_name, last_name, date_of_birth, airline_name)
                     VALUES(%s, %s, %s, %s, %s, %s)'''
         cursor.execute(ins, (username, password, first_name, last_name, date_of_birth, airline_name))
         conn.commit()
@@ -195,6 +196,14 @@ def registerAuthStaff():
 def book():
     return render_template('book_flight.html')
 
+@app.route('/pastFlights')
+def viewOldFlights():
+    return render_template('pastflights.html')
+
+@app.route('/futureFlights')
+def futureFlights():
+    return render_template('futureFlights.html')
+
 @app.route('/createFlight')
 def create():
     cursor = conn.cursor()
@@ -204,7 +213,7 @@ def create():
     cursor.execute(query, session['username'])
     data = cursor.fetchone()
 
-    query = '''SELECT * FROM flight WHERE departure_date >= NOW() AND 
+    query = '''SELECT * FROM flight WHERE departure_date >= NOW() AND
                 departure_date <= NOW() + INTERVAL 30 DAY AND airline_name = %s'''
     cursor.execute(query, (data['airline_name']))
     data = cursor.fetchall()
@@ -243,7 +252,7 @@ def create_confirmation():
         return render_template('create_flight.html', error=error)
     else:
         query = '''INSERT INTO flight (flight_num, departure_date, departure_time, departure_airport, arrival_date,
-                               arrival_time, arrival_airport, base_price, airplane_id, airline_name, flight_status) 
+                               arrival_time, arrival_airport, base_price, airplane_id, airline_name, flight_status)
                                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''
         cursor.execute(query, (flight_num, departure_date, departure_time, departure_airport, arrival_date,
                                arrival_time, arrival_airport, base_price, airplane_id, airline_name, flight_status))
@@ -279,7 +288,7 @@ def change_flight_status_confirmation():
 
     cursor = conn.cursor()
 
-    query = '''UPDATE flight SET flight_status = %s WHERE flight.flight_num = %s 
+    query = '''UPDATE flight SET flight_status = %s WHERE flight.flight_num = %s
                 AND flight.departure_date = %s AND flight.departure_time = %s'''
     cursor.execute(query, (flight_status, flight_num, departure_date, departure_time))
 
@@ -393,14 +402,14 @@ def customer_statistics():
     airline_name = data['airline_name']
 
     # find all tickets from the airline in the last year
-    query = '''SELECT Name 
-               FROM customer JOIN (SELECT Customer_email, MAX(total_tickets) 
-                                   FROM (SELECT customer_email, COUNT(Customer_email) as total_tickets 
-                                         FROM ticket NATURAL JOIN purchases 
-                                         WHERE airline_name = %s 
-                                         AND purchases_date >= NOW() - INTERVAL 1 YEAR 
-                                         AND purchases_date <= NOW() 
-                                         GROUP BY customer_email) as a) as b 
+    query = '''SELECT Name
+               FROM customer JOIN (SELECT Customer_email, MAX(total_tickets)
+                                   FROM (SELECT customer_email, COUNT(Customer_email) as total_tickets
+                                         FROM ticket NATURAL JOIN purchases
+                                         WHERE airline_name = %s
+                                         AND purchases_date >= NOW() - INTERVAL 1 YEAR
+                                         AND purchases_date <= NOW()
+                                         GROUP BY customer_email) as a) as b
                WHERE customer.Email = b.customer_email;'''
     cursor.execute(query, (airline_name))
     freq_customer = cursor.fetchall()
@@ -425,13 +434,13 @@ def list_customer_flights():
     data = cursor.fetchone()
     airline_name = data['airline_name']
 
-    query = '''SELECT DISTINCT flight.Flight_num, flight.Departure_date, flight.Departure_time, 
-               flight.Departure_airport, flight.Arrival_date, flight.Arrival_time, flight.Arrival_airport 
-               FROM customer, ticket, flight, purchases 
-               WHERE customer.email = purchases.customer_email 
-               AND purchases.ticket_id = ticket.ticket_id 
-               AND ticket.flight_num = flight.flight_num 
-               AND flight.airline_name = %s 
+    query = '''SELECT DISTINCT flight.Flight_num, flight.Departure_date, flight.Departure_time,
+               flight.Departure_airport, flight.Arrival_date, flight.Arrival_time, flight.Arrival_airport
+               FROM customer, ticket, flight, purchases
+               WHERE customer.email = purchases.customer_email
+               AND purchases.ticket_id = ticket.ticket_id
+               AND ticket.flight_num = flight.flight_num
+               AND flight.airline_name = %s
                AND customer.email = %s'''
     cursor.execute(query, (airline_name, email))
     flights = cursor.fetchall()
@@ -450,30 +459,30 @@ def destination_statistics():
     airline_name = data['airline_name']
 
     # find top 3 destinations for last month
-    query = '''SELECT airport.Airport_code, Name, Visitors 
-               FROM ( SELECT Arrival_date, Arrival_airport, COUNT(*) as visitors 
-                      FROM ticket NATURAL JOIN flight 
+    query = '''SELECT airport.Airport_code, Name, Visitors
+               FROM ( SELECT Arrival_date, Arrival_airport, COUNT(*) as visitors
+                      FROM ticket NATURAL JOIN flight
                       WHERE airline_name = %s
-                      AND Arrival_date >= NOW() - INTERVAL 1 MONTH 
-                      AND Arrival_date <= NOW() 
-                      GROUP BY Arrival_airport 
-                      ORDER BY visitors DESC ) as t, airport 
-               WHERE t.arrival_airport = airport.airport_code 
+                      AND Arrival_date >= NOW() - INTERVAL 1 MONTH
+                      AND Arrival_date <= NOW()
+                      GROUP BY Arrival_airport
+                      ORDER BY visitors DESC ) as t, airport
+               WHERE t.arrival_airport = airport.airport_code
                ORDER BY visitors DESC
                LIMIT 3;'''
     cursor.execute(query, (airline_name))
     destinations_month = cursor.fetchall()
 
     # find top 3 destinations for last year
-    query = '''SELECT airport.Airport_code, Name, Visitors 
-               FROM ( SELECT Arrival_date, Arrival_airport, COUNT(*) as visitors 
-                      FROM ticket NATURAL JOIN flight 
-                      WHERE airline_name = %s 
+    query = '''SELECT airport.Airport_code, Name, Visitors
+               FROM ( SELECT Arrival_date, Arrival_airport, COUNT(*) as visitors
+                      FROM ticket NATURAL JOIN flight
+                      WHERE airline_name = %s
                       AND Arrival_date >= NOW() - INTERVAL 1 YEAR
-                      AND Arrival_date <= NOW() 
-                      GROUP BY Arrival_airport 
-                      ORDER BY visitors DESC ) as t, airport 
-               WHERE t.arrival_airport = airport.airport_code 
+                      AND Arrival_date <= NOW()
+                      GROUP BY Arrival_airport
+                      ORDER BY visitors DESC ) as t, airport
+               WHERE t.arrival_airport = airport.airport_code
                ORDER BY visitors DESC
                LIMIT 3;'''
     cursor.execute(query, (airline_name))

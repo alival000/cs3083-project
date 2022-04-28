@@ -499,11 +499,51 @@ def home():
 
     return render_template('home.html', username=username)
 
-
 @app.route('/logout')
 def logout():
     session.pop('username')
     return redirect('/')
+
+@app.route('/searchFutureFlights', methods=['GET', 'POST'])
+def searchFutureFlights():
+    source_airport = request.form['sourceairport']
+    destination_airport = request.form['destinationairport']
+    departure_date = request.form['departuredate']
+
+    cursor = conn.cursor()
+
+    query = "SELECT * FROM flight WHERE departure_airport = %s AND arrival_airport = %s AND departure_date = %s"
+
+    cursor.execute(query, (source_airport, destination_airport, departure_date))
+
+    data = cursor.fetchall()
+
+    if data:
+        return render_template("view_future_flights.html", data=data)
+    else:
+        error = "No flights found"
+        return render_template("index.html", error=error)
+
+@app.route('/searchActiveFlights', methods=['GET','POST'])
+def searchActiveFlights():
+    airline_name = request.form['airlinename']
+    flight_num = requst.form['flightnum']
+    departure_airport = request.form['departureairport']
+    arrival_airport = request.form['arrivalairport']
+
+    cursor = conn.cursor()
+
+    query = "SELECT * FROM flight WHERE airline_name = %s AND flight_num = %s AND departure_airport = %s AND arrival_airport = %s"
+
+    cursor.execute(query, (airline_name, flight_num, departure_airport, arrival_airport))
+
+    data = cursor.fetchall()
+
+    if data:
+        return render_template("view_flight_status.html", data=data)
+    else:
+        error = "Flight not found"
+        return render_template("index.html", data=data)
 
 
 app.secret_key = 'some key that you will never guess'

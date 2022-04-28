@@ -200,9 +200,10 @@ def book():
 def viewOldFlights():
     return render_template('pastflights.html')
 
-@app.route('/futureFlights')
-def futureFlights():
-    return render_template('futureFlights.html')
+@app.route('/upcomingFlights')
+def viewUpcomingFlights():
+    return render_template('upcomingCustomerFlights.html')
+
 
 @app.route('/createFlight')
 def create():

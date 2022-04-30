@@ -7,9 +7,8 @@ app = Flask(__name__)
 
 # Configure MySQL
 conn = pymysql.connect(host='localhost',
-                        port = 8889,
                        user='root',
-                       password='root',
+                       password='',
                        db='airport_project',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
@@ -513,7 +512,9 @@ def searchFutureFlights():
 
     cursor = conn.cursor()
 
-    query = "SELECT * FROM flight WHERE departure_airport = %s AND arrival_airport = %s AND departure_date = %s"
+    query = "SELECT * \
+            FROM flight \
+            WHERE departure_airport = %s AND arrival_airport = %s AND departure_date = %s"
 
     cursor.execute(query, (source_airport, destination_airport, departure_date))
 
@@ -534,7 +535,9 @@ def searchActiveFlights():
 
     cursor = conn.cursor()
 
-    query = "SELECT * FROM flight WHERE airline_name = %s AND flight_num = %s AND departure_airport = %s AND arrival_airport = %s"
+    query = "SELECT * \
+            FROM flight \
+            WHERE airline_name = %s AND flight_num = %s AND departure_airport = %s AND arrival_airport = %s"
 
     cursor.execute(query, (airline_name, flight_num, departure_airport, arrival_airport))
 

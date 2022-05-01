@@ -203,6 +203,9 @@ def viewOldFlights():
 def viewUpcomingFlights():
     return render_template('upcomingCustomerFlights.html')
 
+@app.route('/spending')
+def customerSpending():
+    return render_template('customer_spending.html')
 
 @app.route('/createFlight')
 def create():

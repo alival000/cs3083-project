@@ -1,0 +1,44 @@
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<head>
+    <style>
+        table,
+        th,
+        tbody,
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
+</head>
+<body>
+  {% for tot in month %}
+    <h2>Revenue last month</h2>
+    <label>${{tot['total']}}</label>
+  {% endfor %}
+    <h2>Revenue last year</h2>
+  {% for tot in month %}
+    <label>${{tot['total']}}</label></br></br>
+  {% endfor %}
+
+  <label>Revenue by travel class</label>
+  <table>
+      <thead><strong>
+          <tr>
+              <th>Travel class</th>
+              <th>Total Revenue</th>
+          </tr>
+      </strong></thead>
+      <tbody>
+      {% for tot in by_class %}
+          <tr>
+              <td>{{tot['Travel_class']}}</td>
+              <td>${{tot['total']}}</td>
+          </tr>
+      {% endfor %}
+      </tbody>
+  </table></br>
+
+
+<a href="/home">Go back</a>
+</body>
+</html>

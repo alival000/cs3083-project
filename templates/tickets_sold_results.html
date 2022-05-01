@@ -1,0 +1,38 @@
+<html xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+<head>
+    <style>
+        table,
+        th,
+        tbody,
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
+</head>
+<body>
+  {% for tot in sold %}
+    <h2>Tickets sold in given time period</h2>
+    <label>{{tot['total']}}</label>
+  {% endfor %}
+</br>
+<label>Tickets sold by month</label>
+<table>
+    <thead><strong>
+        <tr>
+            <th>Month</th>
+            <th>Total Tickets</th>
+        </tr>
+    </strong></thead>
+    <tbody>
+    {% for tot in by_month %}
+        <tr>
+            <td>{{tot['month']}}</td>
+            <td>{{tot['total']}}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table></br>
+<a href="/home">Go back</a>
+</body>
+</html>

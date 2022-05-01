@@ -621,7 +621,28 @@ def tickets_sold_result():
     return render_template('tickets_sold_results.html', sold = total_tickets, by_month = monthly)
 
 
+@app.route('/flightRatings')
+def flightRatings():
 
+    cursor = conn.cursor()
+
+            # find current staff' airline
+    query = "SELECT airline_name FROM airline_staff WHERE username = %s"
+    cursor.execute(query, session['username'])
+    data = cursor.fetchone()
+    airline_name = data['airline_name']
+
+    query = '''SELECT AVG(rating) rating, Flight_num
+                FROM flight_reviews NATURAL JOIN flight
+                WHERE airline_name = %s
+                GROUP BY Flight_num;'''
+    cursor.execute(query, airline_name)
+    review = cursor.fetchall()
+
+    cursor.close()
+
+
+    return render_template("airline_flight_reviews.html", avg = review)
 
 
 @app.route('/home')

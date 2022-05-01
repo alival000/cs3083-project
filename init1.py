@@ -191,10 +191,6 @@ def registerAuthStaff():
         session['username'] = username
         return render_template('home.html', username=first_name, staff=True)
 
-@app.route('/bookFlight')
-def book():
-    return render_template('book_flight.html')
-
 @app.route('/pastFlights')
 def viewOldFlights():
     return render_template('pastflights.html')
@@ -695,11 +691,10 @@ def searchUpcomingFlightsRoundtrip():
         error = "No flights found"
         return render_template("view_future_flights.html", error=error)
 
-
 @app.route('/searchActiveFlights', methods=['GET','POST'])
 def searchActiveFlights():
     airline_name = request.form['airlinename']
-    flight_num = requst.form['flightnum']
+    flight_num = request.form['flightnum']
     departure_airport = request.form['departureairport']
     arrival_airport = request.form['arrivalairport']
 
@@ -715,8 +710,79 @@ def searchActiveFlights():
         return render_template("view_flight_status.html", data=data)
     else:
         error = "Flight not found"
-        return render_template("index.html", data=data)
+        return render_template("view_flight_status.html", error=error)
 
+@app.route('/bookFlightOnewayOrRoundtrip')
+def book():
+    return render_template('book_flight_oneway_or_roundtrip.html')
+
+@app.route('/bookFlightOptions', methods=['GET','POST'])
+def bookFlightOptions():
+    flight_type = request.form['flighttype']
+
+    if flight_type == "roundtrip":
+        return render_template("book_flight_options.html", roundtrip=True)
+    else:
+        return render_template("book_flight_options.html", oneway=True)
+
+@app.route('/bookFlightOneway', methods=['GET','POST'])
+def bookFlightOneway():
+    departing_airport = request.form['sourceairport']
+    arriving_airport = request.form['destinationairport']
+    date_option = request.form['dateoption']
+    date = request.form['date']
+
+    if date_option == "departure_date":
+        query = "SELECT * \
+                FROM flight \
+                WHERE departure_airport = %s AND arrival_airport = %s AND departure_date = %s"
+
+    else:
+        query = "SELECT * \
+                FROM flight \
+                WHERE departure_airport = %s AND arrival_airport = %s AND arrival_date = %s"
+
+    cursor = conn.cursor()
+    cursor.execute(query, (departing_airport, arriving_airport, date))
+
+    data = cursor.fetchall()
+
+    if data:
+        return render_template("book_flight_oneway.html", data=data)
+    else:
+        error = "No flights found"
+        return render_template("book_flight_oneway.html", error=error)
+
+@app.route('/bookFlightRoundtrip', methods=['GET','POST'])
+def bookFlightRoundtrip():
+    departing_airport = request.form['sourceairport']
+    arriving_airport = request.form['destinationairport']
+    departing_date = request.form['departingdate']
+    returning_date = request.form['returningdate']
+
+    departing_query = "SELECT * \
+            FROM flight \
+            WHERE departure_airport = %s AND arrival_airport = %s AND departure_date = %s"
+
+    returning_query = "SELECT * \
+            FROM flight \
+            WHERE departure_airport = %s AND arrival_airport = %s AND departure_date = %s"
+
+    cursor = conn.cursor()
+    cursor.execute(departing_query, (departing_airport, arriving_airport, departing_date))
+    departure = cursor.fetchall()
+    cursor.execute(returning_query, (arriving_airport, departing_airport, returning_date))
+    arrival = cursor.fetchall()
+
+    if departure and arrival:
+        return render_template("book_flight_roundtrip.html", departure=departure, arrival=arrival)
+    else:
+        error = "No flights found"
+        return render_template("book_flight_roundtrip.html", error=error)
+
+@app.route('/bookFlight', methods=['GET','POST'])
+def bookFlight():
+    print("not done yet")
 
 app.secret_key = 'some key that you will never guess'
 # Run the app on localhost port 5000

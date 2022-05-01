@@ -493,6 +493,85 @@ def destination_statistics():
 
     return render_template('destination_stats.html', month=destinations_month, year=destinations_year)
 
+@app.route('/revenue')
+def revenue():
+    cursor = conn.cursor()
+
+        # find current staff' airline
+    query = "SELECT airline_name FROM airline_staff WHERE username = %s"
+    cursor.execute(query, session['username'])
+    data = cursor.fetchone()
+    airline_name = data['airline_name']
+    #revenue by month
+    query = '''SELECT SUM(sold_price) total
+        FROM ticket NATURAL JOIN purchases NATURAL JOIN FLIGHT
+        WHERE airline_name = %s
+        AND Arrival_date >= NOW() - INTERVAL 1 MONTH;'''
+    cursor.execute(query, (airline_name))
+    revenue_month = cursor.fetchall()
+    #revenue by year
+    query = '''SELECT SUM(sold_price) as total
+            FROM ticket NATURAL JOIN purchases NATURAL JOIN FLIGHT
+            WHERE airline_name = %s
+            AND Arrival_date >= NOW() - INTERVAL 1 YEAR;'''
+    cursor.execute(query, (airline_name))
+    revenue_year = cursor.fetchall()
+    #reveunue by travel class
+    query = '''SELECT SUM(sold_price) total, Travel_class
+            FROM ticket NATURAL JOIN purchases NATURAL JOIN FLIGHT
+            WHERE airline_name = %s
+            AND Arrival_date <= NOW()
+            GROUP BY Travel_class;'''
+    cursor.execute(query, (airline_name))
+    revenue_by_class = cursor.fetchall()
+
+    cursor.close()
+
+    return render_template('revenue.html', month=revenue_month, year=revenue_year, by_class = revenue_by_class)
+
+@app.route('/tickets_sold', methods=['GET', 'POST'])
+def tickets_sold():
+
+    return render_template("tickets_sold.html")
+
+@app.route('/tickets_sold_result', methods=['GET', 'POST'])
+def tickets_sold_result():
+    starting_date = request.form['startingdate']
+    ending_date = request.form['endingdate']
+    cursor = conn.cursor()
+
+        # find current staff' airline
+    query = "SELECT airline_name FROM airline_staff WHERE username = %s"
+    cursor.execute(query, session['username'])
+    data = cursor.fetchone()
+    airline_name = data['airline_name']
+    query = '''SELECT COUNT(ticket_id) total
+            FROM ticket NATURAL JOIN purchases
+            WHERE airline_name = %s
+            AND Purchases_date >= %s
+            AND Purchases_date <= %s;'''
+    cursor.execute(query, (airline_name, starting_date, ending_date))
+    total_tickets = cursor.fetchall()
+
+    airline_name = data['airline_name']
+    query = '''SELECT COUNT(ticket_id) total, MONTHNAME(Purchases_date) month
+            FROM ticket NATURAL JOIN purchases
+            WHERE airline_name = %s
+            AND Purchases_date >= %s
+            AND Purchases_date <= %s
+            GROUP BY MONTHNAME(Purchases_date);'''
+
+    cursor.execute(query, (airline_name, starting_date, ending_date))
+    monthly = cursor.fetchall()
+
+    cursor.close()
+
+    return render_template('tickets_sold_results.html', sold = total_tickets, by_month = monthly)
+
+
+
+
+
 @app.route('/home')
 def home():
     username = session['username']

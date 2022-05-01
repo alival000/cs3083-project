@@ -1,0 +1,43 @@
+<html>
+<head>
+</head>
+<body>
+  {% if data %}
+    <h2>Your Upcoming Flights</h2>
+    <table>
+      <thead><strong>
+        <tr>
+          <th>Airline</th>
+          <th>Flight Number</th>
+          <th>Departing From</th>
+          <th>Arriving To</th>
+          <th>Departing Date</th>
+          <th>Departing Time</th>
+          <th>Arriving Date</th>
+          <th>Arriving Time</th>
+          <th>Flight Status</th>
+        </tr>
+      </strong></thead>
+      <tbody>
+        {% for item in data %}
+          <tr>
+            <td>{{item['Airline_name']}}</td>
+            <td>{{item['Flight_num']}}</td>
+            <td>{{item['Departure_airport']}}</td>
+            <td>{{item['Arrival_airport']}}</td>
+            <td>{{item['Departure_date']}}</td>
+            <td>{{item['Departure_time']}}</td>
+            <td>{{item['Arrival_date']}}</td>
+            <td>{{item['Arrival_time']}}</td>
+            <td>{{item['Flight_status']}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+  {% if error %}
+    <h1>Oops. You don't have any upcoming flights.</h1>
+    <a href="/">Try again</a>
+  {% endif %}
+</body>
+</html>

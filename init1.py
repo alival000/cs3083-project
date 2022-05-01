@@ -59,6 +59,11 @@ def loginAuthCustomer():
 
     # stores the results in a variable
     data = cursor.fetchone()
+    query = "SELECT * \
+            FROM ticket NATURAL JOIN flight \
+            WHERE customer_email = %s AND departure_date >= NOW()"
+    cursor.execute(query, (email))
+    flights = cursor.fetchall()
     # use fetchall() if you are expecting more than 1 data row
     cursor.close()
     error = None
@@ -66,7 +71,7 @@ def loginAuthCustomer():
         # creates a session for the the user
         # session is a built in
         session['username'] = email
-        return render_template('home.html', username=email, customer=True)
+        return render_template('home.html', username=email, customer=True, flights=flights)
     else:
         # returns an error message to the templates page
         error = 'Invalid login or username'
@@ -190,14 +195,6 @@ def registerAuthStaff():
         cursor.close()
         session['username'] = username
         return render_template('home.html', username=first_name, staff=True)
-
-@app.route('/pastFlights')
-def viewOldFlights():
-    return render_template('pastflights.html')
-
-@app.route('/upcomingFlights')
-def viewUpcomingFlights():
-    return render_template('upcomingCustomerFlights.html')
 
 @app.route('/spending')
 def customerSpending():
@@ -804,6 +801,39 @@ def bookFlightRoundtrip():
 @app.route('/bookFlight', methods=['GET','POST'])
 def bookFlight():
     print("not done yet")
+
+@app.route('/upcomingFlights', methods=['GET','POST'])
+def upcomingFlights():
+    query = "SELECT * \
+            FROM ticket NATURAL JOIN flight \
+            WHERE customer_email = %s AND departure_date >= NOW()"
+
+    cursor = conn.cursor()
+    cursor.execute(query, session['username'])
+    data = cursor.fetchall()
+
+    if data:
+        return render_template("future_customer_flights.html", data=data)
+    else:
+        error = "No upcoming flights"
+        return render_template("future_customer_flights.html", error=error)
+
+@app.route('/pastFlights', methods=['GET','POST'])
+def pastFlights():
+    query = "SELECT * \
+            FROM ticket NATURAL JOIN flight \
+            WHERE customer_email = %s AND departure_date < NOW()"
+
+    cursor = conn.cursor()
+    cursor.execute(query, session['username'])
+    data = cursor.fetchall()
+
+    if data:
+        return render_template("past_customer_flights.html", data=data)
+    else:
+        error = "No past flights"
+        return render_template("past_customer_flights.html", error=error)
+
 
 app.secret_key = 'some key that you will never guess'
 # Run the app on localhost port 5000

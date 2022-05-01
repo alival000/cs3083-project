@@ -17,12 +17,13 @@
 	</br>
 {% endif %}
 
-<h1>Search for Future Flights</h1>
-<form action='/searchFutureFlights' method='POST'>
-	<input type="text" name = "sourceairport" placeholder = "departure airport: XXX" required/></br>
-	<input type="text" name = "destinationairport" placeholder = "arrival airport: XXX" required/></br>
-	<input type="date" name = "departuredate" placeholder = "departure date" required/></br>
-	<input type="submit" value = "Search"/>
+<h1>Search Upcoming Flights</h1>
+<form action='/searchUpcomingFlights' method='POST'>
+	<select id="flighttype" name="flighttype">
+		<option value="roundtrip">Roundtrip</option>
+		<option value="oneway">Oneway</option>
+	</select></br>
+	<input type="submit" value = "Go"/>
 </form>
 
 <h2>Search Flight Status</h2>
@@ -32,6 +33,7 @@
 	<input type="text" name = "departureairport" placeholder = "departure airport: XXX" required/></br>
 	<input type="text" name = "arrivalairport" placeholder = "arrival airport: XXX" required/></br>
 	<input type="submit" value = "Search"/>
+</form>
 </body>
 
 </html>

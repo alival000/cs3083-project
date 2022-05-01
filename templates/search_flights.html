@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+</head>
+
+<body>
+
+<h1>Search Upcoming Flights</h1>
+{% if oneway %}
+  <form action='/searchUpcomingFlightsOneway' method='POST'>
+  	<input type="text" name = "sourceairport" placeholder = "departure airport: XXX" required/></br>
+  	<input type="text" name = "destinationairport" placeholder = "arrival airport: XXX" required/></br>
+  	<select id="dateoption" name="dateoption">
+  		<option value="departure_date">Departures</option>
+  		<option value="arrival_date">Arrivals</option>
+  	</select></br>
+    Date:
+  	<input type="date" name = "date" placeholder = "date" required/></br>
+  	<input type="submit" value = "Search"/>
+  </form>
+{% endif %}
+
+{% if roundtrip %}
+<form action='/searchUpcomingFlightsRoundtrip' method='POST'>
+  <input type="text" name = "sourceairport" placeholder = "departure airport: XXX" required/></br>
+  <input type="text" name = "destinationairport" placeholder = "arrival airport: XXX" required/></br>
+  Departing Date:
+  <input type="date" name = "departingdate" placeholder = "Departing Date" required/></br>
+  Arriving Date: 
+  <input type="date" name = "arrivingdate" placeholder = "Arriving Date" required/></br>
+  <input type="submit" value = "Search"/>
+</form>
+{% endif %}
+</body>
+
+</html>

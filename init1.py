@@ -59,6 +59,11 @@ def loginAuthCustomer():
 
     # stores the results in a variable
     data = cursor.fetchone()
+    query = "SELECT * \
+            FROM ticket NATURAL JOIN flight \
+            WHERE customer_email = %s AND departure_date >= NOW()"
+    cursor.execute(query, (email))
+    flights = cursor.fetchall()
     # use fetchall() if you are expecting more than 1 data row
     cursor.close()
     error = None
@@ -66,7 +71,7 @@ def loginAuthCustomer():
         # creates a session for the the user
         # session is a built in
         session['username'] = email
-        return render_template('home.html', username=email, customer=True)
+        return render_template('home.html', username=email, customer=True, flights=flights)
     else:
         # returns an error message to the templates page
         error = 'Invalid login or username'

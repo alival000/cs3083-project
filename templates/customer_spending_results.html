@@ -12,11 +12,11 @@
 </head>
 <body>
   {% for tot in spent %}
-    <h2>Amount spend in past year</h2>
+    <h2>Amount spend in given time</h2>
     <label>${{tot['total']}}</label>
   {% endfor %}
 </br>
-<label>Spent in past 6 months by month</label>
+<label>Spent in given time by month</label>
 <table>
     <thead><strong>
         <tr>
@@ -25,23 +25,15 @@
         </tr>
     </strong></thead>
     <tbody>
-    {% for tot in past_six %}
+    {% for tot in within_given %}
         <tr>
             <td>{{tot['month']}}</td>
-            <td>{{tot['total']}}</td>
+            <td>${{tot['total']}}</td>
         </tr>
     {% endfor %}
     </tbody>
 </table></br>
 <body>
-
-<h1>Enter time period for spending</h1>
-<form action='/customer_spending_results' method='POST'>
-	<input type="date" name = "startingdate" placeholder = "starting date" required/></br>
-  <input type="date" name = "endingdate" placeholder = "ending date" required/></br>
-	<input type="submit" value = "Search"/>
-</form>
-</body>
 <a href="/home">Go back</a>
 </body>
 </html>

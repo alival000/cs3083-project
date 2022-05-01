@@ -7,8 +7,9 @@ app = Flask(__name__)
 
 # Configure MySQL
 conn = pymysql.connect(host='localhost',
+                        port = 8889,
                        user='root',
-                       password='',
+                       password='root',
                        db='airport_project',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
@@ -205,7 +206,57 @@ def viewUpcomingFlights():
 
 @app.route('/spending')
 def customerSpending():
-    return render_template('customer_spending.html')
+    cursor = conn.cursor()
+
+    cust_email = session['username']
+    query = '''SELECT SUM(Sold_price) total
+            FROM purchases
+            WHERE Customer_email = %s
+            AND purchases_date >= NOW() - INTERVAL 1 YEAR
+            AND Purchases_date <= NOW();'''
+    cursor.execute(query, cust_email)
+    total_spent = cursor.fetchall()
+
+    query = '''SELECT SUM(Sold_price) total, MONTHNAME(Purchases_date) month
+            FROM  purchases
+            WHERE Customer_email = %s
+            AND purchases_date >= NOW() - INTERVAL 6 MONTH
+            AND Purchases_date <= NOW()
+            GROUP BY MONTHNAME(Purchases_date);'''
+
+    cursor.execute(query, cust_email)
+    monthly = cursor.fetchall()
+
+    return render_template('customer_spending.html', spent = total_spent, past_six = monthly)
+
+@app.route('/customer_spending_results', methods=['GET', 'POST'])
+def customer_spending_results():
+    starting_date = request.form['startingdate']
+    ending_date = request.form['endingdate']
+    cursor = conn.cursor()
+
+    cust_email = session['username']
+    query = '''SELECT SUM(Sold_price) total
+            FROM purchases
+            WHERE Customer_email = %s
+            AND purchases_date >= %s
+            AND Purchases_date <= %s;'''
+    cursor.execute(query, (cust_email, starting_date, ending_date))
+    total_spent = cursor.fetchall()
+
+    query = '''SELECT SUM(Sold_price) total, MONTHNAME(Purchases_date) month
+            FROM  purchases
+            WHERE Customer_email = %s
+            AND purchases_date >= %s
+            AND Purchases_date <= %s
+            GROUP BY MONTHNAME(Purchases_date);'''
+
+    cursor.execute(query, (cust_email, starting_date, ending_date))
+    monthly = cursor.fetchall()
+
+
+    return render_template('customer_spending_results.html', spent = total_spent, within_given = monthly)
+
 
 @app.route('/createFlight')
 def create():

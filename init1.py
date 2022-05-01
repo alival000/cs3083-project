@@ -504,19 +504,34 @@ def logout():
     session.pop('username')
     return redirect('/')
 
-@app.route('/searchFutureFlights', methods=['GET', 'POST'])
-def searchFutureFlights():
+@app.route('/searchUpcomingFlights', methods=['GET', 'POST'])
+def searchUpcomingFlights():
+    flight_type = request.form['flighttype']
+
+    if flight_type == "roundtrip":
+        return render_template("search_flights.html", roundtrip=True)
+    else:
+        return render_template("search_flights.html", oneway=True)
+
+@app.route('/searchUpcomingFlightsOneway', methods=['GET','POST'])
+def searchUpcomingFlightsOneway():
     source_airport = request.form['sourceairport']
     destination_airport = request.form['destinationairport']
-    departure_date = request.form['departuredate']
+    date_option = request.form['dateoption']
+    date = request.form['date']
+
+    if date_option == "departure_date":
+        query = "SELECT * \
+                FROM flight \
+                WHERE departure_airport = %s AND arrival_airport = %s AND departure_date = %s"
+
+    else:
+        query = "SELECT * \
+                FROM flight \
+                WHERE departure_airport = %s AND arrival_airport = %s AND arrival_date = %s"
 
     cursor = conn.cursor()
-
-    query = "SELECT * \
-            FROM flight \
-            WHERE departure_airport = %s AND arrival_airport = %s AND departure_date = %s"
-
-    cursor.execute(query, (source_airport, destination_airport, departure_date))
+    cursor.execute(query, (source_airport, destination_airport, date))
 
     data = cursor.fetchall()
 
@@ -524,7 +539,30 @@ def searchFutureFlights():
         return render_template("view_future_flights.html", data=data)
     else:
         error = "No flights found"
-        return render_template("index.html", error=error)
+        return render_template("view_future_flights.html", error=error)
+
+@app.route('/searchUpcomingFlightsRoundtrip', methods=['GET', 'POST'])
+def searchUpcomingFlightsRoundtrip():
+    source_airport = request.form['sourceairport']
+    destination_airport = request.form['destinationairport']
+    departing_date = request.form['departingdate']
+    arriving_date = request.form['arrivingdate']
+
+    query = "SELECT * \
+            FROM flight \
+            WHERE departure_airport = %s AND arrival_airport = %s AND departure_date = %s AND arrival_date = %s"
+
+    cursor = conn.cursor()
+    cursor.execute(query, (source_airport, destination_airport, departing_date, arriving_date))
+
+    data = cursor.fetchall()
+
+    if data:
+        return render_template("view_future_flights.html", data=data)
+    else:
+        error = "No flights found"
+        return render_template("view_future_flights.html", error=error)
+
 
 @app.route('/searchActiveFlights', methods=['GET','POST'])
 def searchActiveFlights():

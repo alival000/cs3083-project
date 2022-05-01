@@ -1,0 +1,74 @@
+<html>
+<head>
+</head>
+<body>
+  {% if departure %}
+    <h2>Upcoming Flights to Your Destination</h2>
+    <table>
+      <thead><strong>
+        <tr>
+          <th>Airline</th>
+          <th>Price</th>
+          <th>Flight Number</th>
+          <th>Departing From</th>
+          <th>Arriving To</th>
+          <th>Departing Date</th>
+          <th>Departing Time</th>
+        </tr>
+        </strong></thead>
+      <tbody>
+        {% for item in departure %}
+          <tr>
+            <td>{{item['Airline_name']}}</td>
+            <td>${{item['Base_price']}}</td>
+            <td>{{item['Flight_num']}}</td>
+            <td>{{item['Departure_airport']}}</td>
+            <td>{{item['Arrival_airport']}}</td>
+            <td>{{item['Departure_date']}}</td>
+            <td>{{item['Departure_time']}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+
+    </table>
+
+    <h2>Returning Flights from Your Destination</h2>
+    <table>
+      <thead><strong>
+        <tr>
+          <th>Airline</th>
+          <th>Price</th>
+          <th>Flight Number</th>
+          <th>Departing From</th>
+          <th>Arriving To</th>
+          <th>Departing Date</th>
+          <th>Departing Time</th>
+        </tr>
+        </strong></thead>
+      <tbody>
+        {% for item in arrival %}
+          <tr>
+            <td>{{item['Airline_name']}}</td>
+            <td>${{item['Base_price']}}</td>
+            <td>{{item['Flight_num']}}</td>
+            <td>{{item['Departure_airport']}}</td>
+            <td>{{item['Arrival_airport']}}</td>
+            <td>{{item['Departure_date']}}</td>
+            <td>{{item['Departure_time']}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <form action='/bookFlight' method='POST'>
+      <input type="text" name="departingflight" placeholder = "departing flight number:" required/></br>
+      <input type="text" name="returningflight" placeholder = "returning flight number:" required/></br>
+      <input type="submit" value="Book"/>
+    </form>
+  {% endif %}
+  {% if error %}
+    <h1>We're sorry, we couldn't find any flights for your given dates.</h1>
+    <a href="/">Try again</a>
+  {% endif %}
+</body>
+</html>

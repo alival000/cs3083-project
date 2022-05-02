@@ -38,5 +38,8 @@
   {% if error %}
     <h1>We're sorry, we couldn't find any flights for that range of dates.</h1>
   {% endif %}
+  <form action="/goBack" method="POST">
+    <input type="submit" name="staff" value = "Go Back"/></form>
+  </form>
 </body>
 </html>

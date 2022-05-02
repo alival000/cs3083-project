@@ -1083,7 +1083,14 @@ def go_back():
     if 'staff' in request.form:
         return render_template('home.html', username=username, staff=True)
     elif 'customer' in request.form:
-        return render_template('home.html', username=username, customer=True)
+        cursor = conn.cursor()
+        query = "SELECT * \
+                FROM ticket NATURAL JOIN flight \
+                WHERE customer_email = %s AND departure_date >= NOW()"
+        cursor.execute(query, session['username'])
+        flights = cursor.fetchall()
+
+        return render_template('home.html', username=username, customer=True, flights=flights)
     else:
         render_template('home.html')
 
@@ -1104,7 +1111,7 @@ def logout():
 def cancelFlightOptions():
     query = "SELECT * \
             FROM ticket NATURAL JOIN flight \
-            WHERE customer_email = %s AND departure_date >= NOW()"
+            WHERE customer_email = %s AND departure_date > DATE_ADD(NOW(), INTERVAL 1 DAY)"
 
     cursor = conn.cursor()
     cursor.execute(query, session['username'])

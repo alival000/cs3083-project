@@ -1,0 +1,41 @@
+<html>
+<head>
+</head>
+<body>
+  {% if data %}
+    <h2>Your Past Flights</h2>
+    <table>
+      <thead><strong>
+        <tr>
+          <th>Airline</th>
+          <th>Flight Number</th>
+          <th>Departed From</th>
+          <th>Arrived To</th>
+          <th>Departed</th>
+          <th>Departed At</th>
+          <th>Arrived</th>
+          <th>Arrived At</th>
+        </tr>
+      </strong></thead>
+      <tbody>
+        {% for item in data %}
+          <tr>
+            <td>{{item['Airline_name']}}</td>
+            <td>{{item['Flight_num']}}</td>
+            <td>{{item['Departure_airport']}}</td>
+            <td>{{item['Arrival_airport']}}</td>
+            <td>{{item['Departure_date']}}</td>
+            <td>{{item['Departure_time']}}</td>
+            <td>{{item['Arrival_date']}}</td>
+            <td>{{item['Arrival_time']}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+  {% if error %}
+    <h1>You don't have any past flight history.</h1>
+    <a href="/">Try again</a>
+  {% endif %}
+</body>
+</html>

@@ -8,9 +8,8 @@ app = Flask(__name__)
 
 # Configure MySQL
 conn = pymysql.connect(host='localhost',
-                        port = 8889,
                        user='root',
-                       password='root',
+                       password='',
                        db='airport_project',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
@@ -642,19 +641,6 @@ def flightRatings():
 
     return render_template("airline_flight_reviews.html", avg = review)
 
-
-@app.route('/home')
-def home():
-    username = session['username']
-    cursor = conn.cursor();
-
-    return render_template('home.html', username=username)
-
-@app.route('/logout')
-def logout():
-    session.pop('username')
-    return redirect('/')
-
 @app.route('/searchUpcomingFlights', methods=['GET', 'POST'])
 def searchUpcomingFlights():
     flight_type = request.form['flighttype']
@@ -935,6 +921,31 @@ def ReviewForm():
         else:
             error = "No past flights"
             return render_template("review_confirmation.html", error=error)
+
+@app.route('/goBack', methods=['GET', 'POST'])
+def go_back():
+
+    username = session['username']
+
+    if 'staff' in request.form:
+        return render_template('home.html', username=username, staff=True)
+    elif 'customer' in request.form:
+        return render_template('home.html', username=username, customer=True)
+    else:
+        render_template('home.html')
+
+
+@app.route('/home')
+def home():
+    username = session['username']
+    cursor = conn.cursor();
+
+    return render_template('home.html', username=username)
+
+@app.route('/logout')
+def logout():
+    session.pop('username')
+    return redirect('/')
 
 app.secret_key = 'some key that you will never guess'
 # Run the app on localhost port 5000

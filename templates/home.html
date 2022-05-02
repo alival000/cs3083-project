@@ -2,18 +2,10 @@
 <head>
 </head>
 <body>
-<form action="/post" method="POST">
-	<h1>Welcome {{username}}</h1>
-</form>
-
-<style type="text/css">
-	table, th, td{
-		border: 1px solid black;
-	}
-</style>
 
 <!-- if customer, add book flight button -->
 {% if customer %}
+	<h1>Welcome, {{info['Name']}}</h1>
 	{% if flights %}
 		<h2>Your Upcoming Flights</h2>
 		<table>
@@ -67,6 +59,8 @@
 
 <!-- if staff, add add flight button -->
 {% if staff %}
+	<h1>{{info['Airline_name']}} welcomes you, {{info['First_name']}}
+	<br></br>
 	<form action="/createFlight" method="GET">
 		<button type="submit">Create Flight</button>
 	</form>

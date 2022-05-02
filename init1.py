@@ -75,15 +75,21 @@ def loginAuthCustomer():
     cursor.execute(query, (email))
     flights = cursor.fetchall()
     # use fetchall() if you are expecting more than 1 data row
-    cursor.close()
     error = None
     if (data):
         # creates a session for the the user
         # session is a built in
         session['username'] = email
-        return render_template('home.html', username=email, customer=True, flights=flights)
+        query = "SELECT * \
+                FROM customer \
+                WHERE email = %s"
+        cursor.execute(query, session['username'])
+        info = cursor.fetchone()
+        cursor.close()
+        return render_template('home.html', username=email, customer=True, flights=flights, info=info)
     else:
         # returns an error message to the templates page
+        cursor.close()
         error = 'Invalid login or username'
         return render_template('login.html', error=error)
 
@@ -103,15 +109,21 @@ def loginAuthStaff():
     # stores the results in a variable
     data = cursor.fetchone()
     # use fetchall() if you are expecting more than 1 data row
-    cursor.close()
     error = None
     if (data):
         # creates a session for the the user
         # session is a built in
         session['username'] = username
-        return render_template('home.html', username=username, staff=True)
+        query = "SELECT * \
+                FROM airline_staff \
+                WHERE username = %s"
+        cursor.execute(query, session['username'])
+        info = cursor.fetchone()
+        cursor.close()
+        return render_template('home.html', username=username, staff=True, info=info)
     else:
         # returns an error message to the templates page
+        cursor.close()
         error = 'Invalid login or username'
         return render_template('login.html', error=error)
 
@@ -166,9 +178,16 @@ def registerAuthCustomer():
         cursor.execute(ins, (email, name, password, building_num, street, city,
                              state, passport_num, passport_exp, passport_country, date_of_birth))
         conn.commit()
-        cursor.close()
+
         session['username'] = name
-        return render_template('home.html', username=name, customer=True)
+
+        query = "SELECT * \
+                FROM customer \
+                WHERE email = %s"
+        cursor.execute(query, session['username'])
+        info = cursor.fetchone()
+        cursor.close()
+        return render_template('home.html', username=name, customer=True, info=info)
 
 
 @app.route('/registerStaff', methods=['GET', 'POST'])
@@ -202,9 +221,15 @@ def registerAuthStaff():
                     VALUES(%s, %s, %s, %s, %s, %s)'''
         cursor.execute(ins, (username, password, first_name, last_name, date_of_birth, airline_name))
         conn.commit()
-        cursor.close()
         session['username'] = username
-        return render_template('home.html', username=first_name, staff=True)
+
+        query = "SELECT * \
+                FROM airline_staff \
+                WHERE username = %s"
+        cursor.execute(query, session['username'])
+        info = cursor.fetchone()
+        cursor.close()
+        return render_template('home.html', username=first_name, staff=True, info=info)
 
 @app.route('/spending')
 def customerSpending():
@@ -1081,7 +1106,14 @@ def go_back():
     username = session['username']
 
     if 'staff' in request.form:
-        return render_template('home.html', username=username, staff=True)
+        query = "SELECT * \
+                FROM airline_staff \
+                WHERE username = %s"
+        cursor = conn.cursor()
+        cursor.execute(query, session['username'])
+        info = cursor.fetchone()
+        cursor.close()
+        return render_template('home.html', username=username, staff=True, info=info)
     elif 'customer' in request.form:
         cursor = conn.cursor()
         query = "SELECT * \
@@ -1090,7 +1122,13 @@ def go_back():
         cursor.execute(query, session['username'])
         flights = cursor.fetchall()
 
-        return render_template('home.html', username=username, customer=True, flights=flights)
+        query = "SELECT * \
+                FROM customer \
+                WHERE email = %s"
+        cursor.execute(query, session['username'])
+        info = cursor.fetchone()
+        cursor.close()
+        return render_template('home.html', username=username, customer=True, flights=flights, info=info)
     else:
         render_template('home.html')
 
@@ -1100,7 +1138,21 @@ def home():
     username = session['username']
     cursor = conn.cursor();
 
-    return render_template('home.html', username=username)
+    if '@' in username:
+        query = "SELECT * \
+                FROM customer \
+                WHERE email = %s"
+        cursor.execute(query, session['username'])
+        info = cursor.fetchone()
+    else:
+        query = "SELECT * \
+                FROM airline_staff \
+                WHERE username = %s"
+        cursor.execute(query, session['username'])
+        info = cursor.fetchone()
+
+    cursor.close()
+    return render_template('home.html', username=username, info=info)
 
 @app.route('/logout')
 def logout():

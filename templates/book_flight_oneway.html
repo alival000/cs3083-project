@@ -35,8 +35,13 @@
       </tbody>
     </table>
 
-    <form action='/bookFlight' action='POST'>
+    <form action='/bookOneWayFinal' method='POST'>
       <input type="text" name="departingflight" placeholder="departing flight number:" required/></br>
+      <select id="Travel_class" name="Travel_class">
+        <option value="First">First Class</option>
+        <option value="Business">Business Class</option>
+        <option value="Economy">Economy</option>
+      </select></br>
       <input type="submit" value="Book"/>
     </form>
   {% endif %}

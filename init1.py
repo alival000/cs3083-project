@@ -1,11 +1,21 @@
 # Import Flask Library
 from flask import Flask, render_template, request, session, url_for, redirect
 import pymysql.cursors
+import random
 
 # Initialize the app from Flask
 app = Flask(__name__)
 
 # Configure MySQL
+#I keep forgetting to push correct ports for your version
+#commented below just in case
+#conn = pymysql.connect(host='localhost',
+#user='root',
+#password='',
+#db='airport_project',
+#charset='utf8mb4',
+#cursorclass=pymysql.cursors.DictCursor)
+
 conn = pymysql.connect(host='localhost',
                        user='root',
                        password='',
@@ -218,6 +228,7 @@ def customerSpending():
 
     cursor.execute(query, cust_email)
     monthly = cursor.fetchall()
+    cursor.close()
 
     return render_template('customer_spending.html', spent = total_spent, past_six = monthly)
 
@@ -245,6 +256,7 @@ def customer_spending_results():
 
     cursor.execute(query, (cust_email, starting_date, ending_date))
     monthly = cursor.fetchall()
+    cursor.close()
 
 
     return render_template('customer_spending_results.html', spent = total_spent, within_given = monthly)
@@ -263,6 +275,7 @@ def create():
                 departure_date <= NOW() + INTERVAL 30 DAY AND airline_name = %s'''
     cursor.execute(query, (data['airline_name']))
     data = cursor.fetchall()
+    cursor.close()
 
     return render_template('create_flight.html', data=data)
 
@@ -637,19 +650,6 @@ def flightRatings():
 
     return render_template("airline_flight_reviews.html", avg = review)
 
-
-@app.route('/home')
-def home():
-    username = session['username']
-    cursor = conn.cursor();
-
-    return render_template('home.html', username=username)
-
-@app.route('/logout')
-def logout():
-    session.pop('username')
-    return redirect('/')
-
 @app.route('/searchUpcomingFlights', methods=['GET', 'POST'])
 def searchUpcomingFlights():
     flight_type = request.form['flighttype']
@@ -798,9 +798,83 @@ def bookFlightRoundtrip():
         error = "No flights found"
         return render_template("book_flight_roundtrip.html", error=error)
 
-@app.route('/bookFlight', methods=['GET','POST'])
-def bookFlight():
-    print("not done yet")
+@app.route('/bookRoundtripFinal', methods=['GET','POST'])
+def bookRoundtripFinal():
+        ticket_id1 = str(random.randint(0, 1000000))
+        ticket_id2 = str(random.randint(0, 1000000))
+        departing_flight_id = request.form['departingflight']
+        arriving_flight_id = request.form['returningflight']
+        Travel_class = request.form['Travel_class']
+        cursor = conn.cursor()
+
+        cust_email = session['username']
+        query = 'SELECT * FROM flight WHERE flight_num = %s'
+        cursor.execute(query, departing_flight_id)
+        result1 = cursor.fetchone()
+        query = 'SELECT * FROM flight WHERE flight_num = %s'
+        cursor.execute(query, arriving_flight_id)
+        result2 = cursor.fetchone()
+
+        if(result1 and result2):
+                # If the previous query returns data, then user exists
+                ins1 = '''INSERT INTO ticket (Ticket_id, Customer_email, Travel_class,
+                        Airline_name, Flight_num)
+                        VALUES(%s, %s, %s, %s, %s)'''
+                cursor.execute(ins1, (ticket_id1, cust_email, Travel_class, result1['Airline_name'], departing_flight_id))
+                conn.commit()
+                purchase1 = '''INSERT INTO purchases (Ticket_id, Customer_email, purchases_date,
+                        purchases_time, sold_price)
+                        VALUES(%s, %s, NOW(), NOW(), %s)'''
+                cursor.execute(purchase1, (ticket_id1, cust_email, result1['Base_price']))
+                conn.commit()
+
+                ins2 = '''INSERT INTO ticket (Ticket_id, Customer_email, Travel_class,
+                        Airline_name, Flight_num)
+                        VALUES(%s, %s, %s, %s, %s)'''
+                cursor.execute(ins2, (ticket_id2, cust_email, Travel_class, result2['Airline_name'], arriving_flight_id))
+                conn.commit()
+                purchase2 = '''INSERT INTO purchases (Ticket_id, Customer_email, purchases_date,
+                            purchases_time, sold_price)
+                            VALUES(%s, %s, NOW(), NOW(), %s)'''
+                cursor.execute(purchase2, (ticket_id2, cust_email, result2['Base_price']))
+                conn.commit()
+                cursor.close()
+                return render_template("booking_confirmation.html")
+        else:
+            error = "Enter valid flight"
+            return render_template("booking_confirmation.html", error=error)
+
+@app.route('/bookOneWayFinal', methods=['GET','POST'])
+def bookOneWayFinal():
+        ticket_id = str(random.randint(0, 1000000))
+        departing_flight_id = request.form['departingflight']
+        Travel_class = request.form['Travel_class']
+        cursor = conn.cursor()
+
+        cust_email = session['username']
+        query = 'SELECT * FROM flight WHERE flight_num = %s'
+        cursor.execute(query, departing_flight_id)
+        result = cursor.fetchone()
+
+        if(result):
+        # If the previous query returns data, then user exists
+            ins = '''INSERT INTO ticket (Ticket_id, Customer_email, Travel_class,
+                    Airline_name, Flight_num)
+                    VALUES(%s, %s, %s, %s, %s)'''
+            cursor.execute(ins, (ticket_id, cust_email, Travel_class, result['Airline_name'], departing_flight_id))
+            conn.commit()
+            purchase = '''INSERT INTO purchases (Ticket_id, Customer_email, purchases_date,
+                    purchases_time, sold_price)
+                    VALUES(%s, %s, NOW(), NOW(), %s)'''
+            cursor.execute(purchase, (ticket_id, cust_email, result['Base_price']))
+            conn.commit()
+            cursor.close()
+            return render_template("booking_confirmation.html")
+
+        else:
+            error = "Enter valid flight"
+            return render_template("booking_confirmation.html", error=error)
+
 
 @app.route('/upcomingFlights', methods=['GET','POST'])
 def upcomingFlights():
@@ -963,6 +1037,53 @@ def customersOnFlight():
     else:
         error = "No customers and/or no flight found"
         return render_template("staff_customer_flight_info.html", error=error)
+
+@app.route('/reviewForm', methods=['GET','POST'])
+def ReviewForm():
+        flightNum = request.form['flightNum']
+        rating = request.form['rating']
+        review = request.form['review']
+        cursor = conn.cursor()
+
+        cust_email = session['username']
+        query = 'SELECT * FROM flight WHERE flight_num = %s'
+        cursor.execute(query, flightNum)
+        result = cursor.fetchone()
+
+        if(result):
+            ins = '''INSERT INTO flight_reviews (Flight_num, Customer_email, rating, review)
+                    VALUES(%s, %s, %s, %s)'''
+            cursor.execute(ins, (flightNum, cust_email, rating, review))
+            conn.commit()
+            return render_template("review_confirmation.html")
+        else:
+            error = "No past flights"
+            return render_template("review_confirmation.html", error=error)
+
+@app.route('/goBack', methods=['GET', 'POST'])
+def go_back():
+
+    username = session['username']
+
+    if 'staff' in request.form:
+        return render_template('home.html', username=username, staff=True)
+    elif 'customer' in request.form:
+        return render_template('home.html', username=username, customer=True)
+    else:
+        render_template('home.html')
+
+
+@app.route('/home')
+def home():
+    username = session['username']
+    cursor = conn.cursor();
+
+    return render_template('home.html', username=username)
+
+@app.route('/logout')
+def logout():
+    session.pop('username')
+    return redirect('/')
 
 app.secret_key = 'some key that you will never guess'
 # Run the app on localhost port 5000

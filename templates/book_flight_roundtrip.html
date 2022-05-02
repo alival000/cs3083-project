@@ -60,9 +60,14 @@
       </tbody>
     </table>
 
-    <form action='/bookFlight' method='POST'>
+    <form action='/bookRoundtripFinal' method='POST'>
       <input type="text" name="departingflight" placeholder = "departing flight number:" required/></br>
       <input type="text" name="returningflight" placeholder = "returning flight number:" required/></br>
+      <select id="Travel_class" name="Travel_class">
+        <option value="First">First Class</option>
+        <option value="Business">Business Class</option>
+        <option value="Economy">Economy</option>
+      </select></br>
       <input type="submit" value="Book"/>
     </form>
   {% endif %}
@@ -70,5 +75,8 @@
     <h1>We're sorry, we couldn't find any flights for your given dates.</h1>
     <a href="/">Try again</a>
   {% endif %}
+<form action="/goBack" method="POST">
+  <input type="submit" name="customer" value = "Go Back"/></form>
+</form>
 </body>
 </html>

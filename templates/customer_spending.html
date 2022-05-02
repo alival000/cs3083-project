@@ -13,7 +13,7 @@
 <body>
   {% for tot in spent %}
     <h2>Amount spend in past year</h2>
-    <label>${{tot['total']}}</label>
+    <label>${{tot['total']}}</label></br>
   {% endfor %}
 </br>
 <label>Spent in past 6 months by month</label>
@@ -42,6 +42,8 @@
 	<input type="submit" value = "Search"/>
 </form>
 </body>
-<a href="/home">Go back</a>
+<form action="/goBack" method="POST">
+  <input type="submit" name="customer" value = "Go Back"/></form>
+</form>
 </body>
 </html>

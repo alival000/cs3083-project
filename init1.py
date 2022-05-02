@@ -914,6 +914,28 @@ def pastFlights():
         return render_template("past_customer_flights.html", error=error)
 
 
+@app.route('/reviewForm', methods=['GET','POST'])
+def ReviewForm():
+        flightNum = request.form['flightNum']
+        rating = request.form['rating']
+        review = request.form['review']
+        cursor = conn.cursor()
+
+        cust_email = session['username']
+        query = 'SELECT * FROM flight WHERE flight_num = %s'
+        cursor.execute(query, flightNum)
+        result = cursor.fetchone()
+
+        if(result):
+            ins = '''INSERT INTO flight_reviews (Flight_num, Customer_email, rating, review)
+                    VALUES(%s, %s, %s, %s)'''
+            cursor.execute(ins, (flightNum, cust_email, rating, review))
+            conn.commit()
+            return render_template("review_confirmation.html")
+        else:
+            error = "No past flights"
+            return render_template("review_confirmation.html", error=error)
+
 app.secret_key = 'some key that you will never guess'
 # Run the app on localhost port 5000
 # debug = True -> you don't have to restart flask

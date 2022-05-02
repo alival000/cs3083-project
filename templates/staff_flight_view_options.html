@@ -1,0 +1,47 @@
+<html>
+<head></head>
+<body>
+  <h1>Flight Information</h2>
+    {% if data %}
+      <h2>Your Airline's Upcoming Flights</h2>
+      <table>
+        <thead><strong>
+          <tr>
+            <th>Flight Number</th>
+            <th>Departing From</th>
+            <th>Arriving To</th>
+            <th>Departing Date</th>
+            <th>Departing Time</th>
+            <th>Arriving Date</th>
+            <th>Arriving Time</th>
+            <th>Flight Status</th>
+          </tr>
+        </strong></thead>
+        <tbody>
+          {% for item in data %}
+            <tr>
+              <td>{{item['Flight_num']}}</td>
+              <td>{{item['Departure_airport']}}</td>
+              <td>{{item['Arrival_airport']}}</td>
+              <td>{{item['Departure_date']}}</td>
+              <td>{{item['Departure_time']}}</td>
+              <td>{{item['Arrival_date']}}</td>
+              <td>{{item['Arrival_time']}}</td>
+              <td>{{item['Flight_status']}}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+    <br></br>
+    <form action="/pastStaffFlightsOptions" method="GET">
+      <button type="submit">Past Flights</button>
+    </form>
+    <form action="/futureStaffFlightsOptions" method="GET">
+      <button type="submit">Future Flights</button>
+    </form>
+    <form action="/flightCustomerInfoOptions" method="GET">
+      <button type="submit">Customer to Flight Information</button>
+    </form>
+</body>
+</html>

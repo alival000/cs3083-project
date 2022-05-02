@@ -834,6 +834,135 @@ def pastFlights():
         error = "No past flights"
         return render_template("past_customer_flights.html", error=error)
 
+@app.route('/viewFlightOptions', methods=['GET','POST'])
+def viewFlightOptions():
+    # airline name
+    query = "SELECT airline_name \
+            FROM airline_staff \
+            WHERE username = %s"
+
+    cursor = conn.cursor()
+    cursor.execute(query, session['username'])
+    data = cursor.fetchone()
+    airline_name = data['airline_name']
+
+    # query for future flights, default
+    query = "SELECT * \
+            FROM airline_staff NATURAL JOIN flight \
+            WHERE airline_name = %s AND departure_date <= DATE_ADD(NOW(), INTERVAL 30 DAY) \
+            AND departure_date >= NOW()"
+
+    cursor = conn.cursor()
+    cursor.execute(query, airline_name)
+    data = cursor.fetchall()
+
+    if data:
+        return render_template("staff_flight_view_options.html", data=data)
+    else:
+        error = "No upcoming flights"
+        return render_template("staff_flight_view_options.html", error=error)
+
+@app.route('/futureStaffFlightsOptions', methods=['GET','POST'])
+def futureFlightsOptions():
+    return render_template("staff_future_flights_options.html")
+
+@app.route('/futureStaffFlights', methods=['GET','POST'])
+def futureStaffFlights():
+    departing_airport = request.form['departingairport']
+    arriving_airport = request.form['arrivingairport']
+    date1 = request.form['date1']
+    date2 = request.form['date2']
+
+    query = "SELECT airline_name \
+            FROM airline_staff \
+            WHERE username = %s"
+
+    cursor = conn.cursor()
+    cursor.execute(query, session['username'])
+    data = cursor.fetchone()
+    airline_name = data['airline_name']
+
+    query = "SELECT * \
+            FROM airline_staff NATURAL JOIN flight \
+            WHERE airline_name = %s AND departure_airport = %s AND arrival_airport = %s \
+                AND (departure_date >= %s OR arrival_date >= %s) \
+                AND (departure_date <= %s OR arrival_date <= %s)\
+                AND (departure_date >= NOW() AND arrival_date >= NOW())"
+
+    cursor.execute(query, (airline_name, departing_airport, arriving_airport, date1, date1, date2, date2))
+    data = cursor.fetchall()
+
+    if data:
+        return render_template("staff_future_flights.html", data=data)
+    else:
+        error = "No flights found"
+        return render_template("staff_future_flights.html", error=error)
+
+@app.route('/pastStaffFlightsOptions', methods=['GET','POST'])
+def pastStaffFlightsOptions():
+    return render_template("staff_past_flights_options.html")
+
+@app.route('/pastStaffFlights', methods=['GET','POST'])
+def pastStaffFlights():
+    departing_airport = request.form['departingairport']
+    arriving_airport = request.form['arrivingairport']
+    date1 = request.form['date1']
+    date2 = request.form['date2']
+
+    query = "SELECT airline_name \
+            FROM airline_staff \
+            WHERE username = %s"
+
+    cursor = conn.cursor()
+    cursor.execute(query, session['username'])
+    data = cursor.fetchone()
+    airline_name = data['airline_name']
+
+    query = "SELECT * \
+            FROM airline_staff NATURAL JOIN flight \
+            WHERE airline_name = %s AND departure_airport = %s AND arrival_airport = %s \
+                AND (departure_date >= %s OR arrival_date >= %s) \
+                AND (departure_date <= %s OR arrival_date <= %s)\
+                AND (departure_date < NOW() AND arrival_date < NOW())"
+
+    cursor.execute(query, (airline_name, departing_airport, arriving_airport, date1, date1, date2, date2))
+    data = cursor.fetchall()
+
+    if data:
+        return render_template("staff_past_flights.html", data=data)
+    else:
+        error = "No flights found"
+        return render_template("staff_past_flights.html", error=error)
+
+@app.route('/flightCustomerInfoOptions', methods=['GET','POST'])
+def flightCustomerInfoOptions():
+    return render_template("staff_customer_flight_info_options.html")
+
+@app.route('/customersOnFlight', methods=['GET','POST'])
+def customersOnFlight():
+    flight_num = request.form['flightnum']
+
+    query = "SELECT airline_name \
+            FROM airline_staff \
+            WHERE username = %s"
+
+    cursor = conn.cursor()
+    cursor.execute(query, session['username'])
+    data = cursor.fetchone()
+    airline_name = data['airline_name']
+
+    query = "SELECT * \
+            FROM customer NATURAL JOIN ticket \
+            WHERE airline_name = %s AND flight_num = %s AND email = customer_email"
+
+    cursor.execute(query, (airline_name, flight_num))
+    data = cursor.fetchall()
+
+    if data:
+        return render_template("staff_customer_flight_info.html", data=data, airline=airline_name, flight_num=flight_num)
+    else:
+        error = "No customers and/or no flight found"
+        return render_template("staff_customer_flight_info.html", error=error)
 
 app.secret_key = 'some key that you will never guess'
 # Run the app on localhost port 5000

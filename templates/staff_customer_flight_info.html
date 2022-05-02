@@ -1,0 +1,29 @@
+<html>
+<head>
+</head>
+<body>
+  {% if data %}
+    <h1>Upcoming Customers on {{airline}} Flight {{flight_num}}</h1>
+    <table>
+      <thead><strong>
+        <tr>
+          <th>Customer</th>
+          <th>Email</th>
+        </tr>
+        </strong></thead>
+      <tbody>
+        {% for item in data %}
+          <tr>
+            <td>{{item['Name']}}</td>
+            <td>{{item['Customer_email']}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+  {% if error %}
+    <h1>We're sorry, we couldn't find any results for your request.</h1>
+    <a href="/">Try again</a>
+  {% endif %}
+</body>
+</html>

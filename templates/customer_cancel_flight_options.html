@@ -1,0 +1,50 @@
+<html>
+<head>
+</head>
+<body>
+  {% if data %}
+    <h2>Your Upcoming Flights</h2>
+    <table>
+      <thead><strong>
+        <tr>
+          <th>Airline</th>
+          <th>Flight Number</th>
+          <th>Departing From</th>
+          <th>Arriving To</th>
+          <th>Departing Date</th>
+          <th>Departing Time</th>
+          <th>Arriving Date</th>
+          <th>Arriving Time</th>
+          <th>Flight Status</th>
+        </tr>
+      </strong></thead>
+      <tbody>
+        {% for item in data %}
+          <tr>
+            <td>{{item['Airline_name']}}</td>
+            <td>{{item['Flight_num']}}</td>
+            <td>{{item['Departure_airport']}}</td>
+            <td>{{item['Arrival_airport']}}</td>
+            <td>{{item['Departure_date']}}</td>
+            <td>{{item['Departure_time']}}</td>
+            <td>{{item['Arrival_date']}}</td>
+            <td>{{item['Arrival_time']}}</td>
+            <td>{{item['Flight_status']}}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <form action='/cancelFlight' method='POST'></br>
+      Input Flight Number of Flight You Would Like to Cancel:
+      <input type="text" name="flightnum" placeholder="Flight Number"required/></br>
+      <input type="submit" value="Cancel"/>
+    </form>
+  {% endif %}
+  {% if error %}
+    <h1>You don't have any upcoming flights to cancel.</h1>
+  {% endif %}
+<form action="/goBack" method="POST">
+  <input type="submit" name="customer" value = "Go Back"/></form>
+</form>
+</body>
+</html>

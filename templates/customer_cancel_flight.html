@@ -1,0 +1,16 @@
+<html>
+<head></head>
+<body>
+  {% if flight_num %}
+    <h2>Success! Flight {{flight_num}} has been cancelled.</h2>
+  {% endif %}
+  {% if error %}
+    <h2>We couldn't cancel your flight. Try again.</h2>
+    <form action="/cancelFlightOptions" method="GET">
+      <input type="submit" value="Try Again">
+  {% endif %}
+  <form action="/goBack" method="POST">
+    <input type="submit" name="customer" value = "Go Back"/></form>
+  </form>
+</body>
+</html>

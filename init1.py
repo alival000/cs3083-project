@@ -669,12 +669,14 @@ def searchUpcomingFlightsOneway():
     if date_option == "departure_date":
         query = "SELECT * \
                 FROM flight \
-                WHERE departure_airport = %s AND arrival_airport = %s AND departure_date = %s"
+                WHERE departure_airport = %s AND arrival_airport = %s AND departure_date = %s \
+                AND departure_date >= NOW()"
 
     else:
         query = "SELECT * \
                 FROM flight \
-                WHERE departure_airport = %s AND arrival_airport = %s AND arrival_date = %s"
+                WHERE departure_airport = %s AND arrival_airport = %s AND arrival_date = %s \
+                AND departure_date >= NOW()"
 
     cursor = conn.cursor()
     cursor.execute(query, (source_airport, destination_airport, date))
@@ -682,7 +684,7 @@ def searchUpcomingFlightsOneway():
     data = cursor.fetchall()
 
     if data:
-        return render_template("view_future_flights.html", data=data)
+        return render_template("view_future_flights.html", oneway=True, data=data)
     else:
         error = "No flights found"
         return render_template("view_future_flights.html", error=error)
@@ -692,19 +694,26 @@ def searchUpcomingFlightsRoundtrip():
     source_airport = request.form['sourceairport']
     destination_airport = request.form['destinationairport']
     departing_date = request.form['departingdate']
-    arriving_date = request.form['arrivingdate']
+    returning_date = request.form['arrivingdate']
 
-    query = "SELECT * \
-            FROM flight \
-            WHERE departure_airport = %s AND arrival_airport = %s AND departure_date = %s AND arrival_date = %s"
+    departing_query = "SELECT * \
+                    FROM flight \
+                    WHERE departure_airport = %s AND arrival_airport = %s AND departure_date = %s \
+                    AND departure_date >= NOW()"
+
+    returning_query = "SELECT * \
+                    FROM flight \
+                    WHERE departure_airport = %s AND arrival_airport = %s AND departure_date = %s \
+                    AND departure_date >= NOW()"
 
     cursor = conn.cursor()
-    cursor.execute(query, (source_airport, destination_airport, departing_date, arriving_date))
+    cursor.execute(departing_query, (source_airport, destination_airport, departing_date))
+    departure = cursor.fetchall()
+    cursor.execute(returning_query, (source_airport, destination_airport, returning_date))
+    arrival = cursor.fetchall()
 
-    data = cursor.fetchall()
-
-    if data:
-        return render_template("view_future_flights.html", data=data)
+    if departure and arrival:
+        return render_template("view_future_flights.html", roundtrip=True, departure=departure, arrival=arrival)
     else:
         error = "No flights found"
         return render_template("view_future_flights.html", error=error)
@@ -718,7 +727,9 @@ def searchActiveFlights():
 
     cursor = conn.cursor()
 
-    query = "SELECT * FROM flight WHERE airline_name = %s AND flight_num = %s AND departure_airport = %s AND arrival_airport = %s"
+    query = "SELECT * FROM flight \
+            WHERE airline_name = %s AND flight_num = %s AND departure_airport = %s \
+            AND arrival_airport = %s AND departure_date >= NOW()"
 
     cursor.execute(query, (airline_name, flight_num, departure_airport, arrival_airport))
 
@@ -753,12 +764,14 @@ def bookFlightOneway():
     if date_option == "departure_date":
         query = "SELECT * \
                 FROM flight \
-                WHERE departure_airport = %s AND arrival_airport = %s AND departure_date = %s"
+                WHERE departure_airport = %s AND arrival_airport = %s AND departure_date = %s \
+                AND departure_date >= NOW()"
 
     else:
         query = "SELECT * \
                 FROM flight \
-                WHERE departure_airport = %s AND arrival_airport = %s AND arrival_date = %s"
+                WHERE departure_airport = %s AND arrival_airport = %s AND arrival_date = %s \
+                AND departure_date >= NOW()"
 
     cursor = conn.cursor()
     cursor.execute(query, (departing_airport, arriving_airport, date))
@@ -780,11 +793,13 @@ def bookFlightRoundtrip():
 
     departing_query = "SELECT * \
             FROM flight \
-            WHERE departure_airport = %s AND arrival_airport = %s AND departure_date = %s"
+            WHERE departure_airport = %s AND arrival_airport = %s AND departure_date = %s \
+            AND departure_date >= NOW()"
 
     returning_query = "SELECT * \
             FROM flight \
-            WHERE departure_airport = %s AND arrival_airport = %s AND departure_date = %s"
+            WHERE departure_airport = %s AND arrival_airport = %s AND departure_date = %s \
+            AND departure_date >= NOW()"
 
     cursor = conn.cursor()
     cursor.execute(departing_query, (departing_airport, arriving_airport, departing_date))
@@ -1084,6 +1099,49 @@ def home():
 def logout():
     session.pop('username')
     return redirect('/')
+
+@app.route('/cancelFlightOptions', methods=['GET','POST'])
+def cancelFlightOptions():
+    query = "SELECT * \
+            FROM ticket NATURAL JOIN flight \
+            WHERE customer_email = %s AND departure_date >= NOW()"
+
+    cursor = conn.cursor()
+    cursor.execute(query, session['username'])
+    data = cursor.fetchall()
+
+    if data:
+        return render_template("customer_cancel_flight_options.html", data=data)
+    else:
+        error = "No upcoming flights"
+        return render_template("future_customer_flights.html", error=error)
+
+@app.route('/cancelFlight', methods=['GET','POST'])
+def cancelFlight():
+    flight_num = request.form['flightnum']
+
+    ticket = "SELECT ticket_id \
+            FROM ticket \
+            WHERE customer_email = %s and flight_num = %s"
+
+    delete_ticket = "DELETE FROM ticket \
+                    WHERE customer_email = %s AND flight_num = %s AND ticket_id = %s"
+
+    delete_purchase = "DELETE FROM purchases \
+                        WHERE customer_email = %s AND ticket_id = %s"
+
+    cursor = conn.cursor()
+    cursor.execute(ticket, (session['username'], flight_num))
+    data = cursor.fetchone()
+    ticket_id = data['ticket_id']
+
+    if ticket_id:
+        cursor.execute(delete_purchase, (session['username'], ticket_id))
+        cursor.execute(delete_ticket, (session['username'], flight_num, ticket_id))
+        return render_template("customer_cancel_flight.html", flight_num=flight_num)
+    else:
+        error = "Could not find"
+        return render_template("customer_cancel_flight.html", error=error)
 
 app.secret_key = 'some key that you will never guess'
 # Run the app on localhost port 5000

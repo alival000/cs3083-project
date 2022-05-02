@@ -7,6 +7,15 @@ import random
 app = Flask(__name__)
 
 # Configure MySQL
+#I keep forgetting to push correct ports for your version
+#commented below just in case
+#conn = pymysql.connect(host='localhost',
+#user='root',
+#password='',
+#db='airport_project',
+#charset='utf8mb4',
+#cursorclass=pymysql.cursors.DictCursor)
+
 conn = pymysql.connect(host='localhost',
                         port = 8889,
                        user='root',

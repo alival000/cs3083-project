@@ -340,11 +340,16 @@ def create_confirmation():
     arrival_airport = request.form['arrivalairport']
     base_price = request.form['baseprice']
     airplane_id = request.form['airplaneid']
-    airline_name = request.form['airlinename']
     flight_status = request.form['status']
 
     # cursor used to send queries
     cursor = conn.cursor()
+
+    # find current staff's airline
+    query = "SELECT airline_name FROM airline_staff WHERE username = %s"
+    cursor.execute(query, session['username'])
+    data = cursor.fetchone()
+    airline_name = data['airline_name']
 
     # executes query
     query = 'SELECT * FROM flight where flight_num = %s AND departure_date = %s AND departure_time = %s'

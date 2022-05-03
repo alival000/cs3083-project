@@ -155,6 +155,7 @@ def registerAuthCustomer():
     # grabs information from the forms
     name = request.form['name']
     email = request.form['email']
+    phone_num = request.form['phone']
     password = request.form['password']
     date_of_birth = request.form['dateofbirth']
     building_num = request.form['buildingnum']
@@ -192,6 +193,11 @@ def registerAuthCustomer():
                     VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''
         cursor.execute(ins, (email, name, pass_hash, building_num, street, city,
                              state, passport_num, passport_exp, passport_country, date_of_birth))
+        conn.commit()
+
+        ins = '''INSERT INTO customer_phone (email, phone_num)
+                           VALUES(%s, %s)'''
+        cursor.execute(ins, (email, phone_num))
         conn.commit()
 
         session['username'] = name

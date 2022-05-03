@@ -1,7 +1,9 @@
 # Import Flask Library
 from flask import Flask, render_template, request, session, url_for, redirect
+from hashlib import md5
 import pymysql.cursors
 import random
+
 
 # Initialize the app from Flask
 app = Flask(__name__)
@@ -63,9 +65,13 @@ def loginAuthCustomer():
     # cursor used to send queries
     cursor = conn.cursor()
 
+    # hash password
+    pass_encoded = password.encode()
+    pass_hash = md5(pass_encoded).hexdigest()
+
     # executes query
     query = 'SELECT * FROM customer WHERE email = %s and password = %s'
-    cursor.execute(query, (email, password))
+    cursor.execute(query, (email, pass_hash))
 
     # stores the results in a variable
     data = cursor.fetchone()
@@ -74,6 +80,7 @@ def loginAuthCustomer():
             WHERE customer_email = %s AND departure_date >= NOW()"
     cursor.execute(query, (email))
     flights = cursor.fetchall()
+
     # use fetchall() if you are expecting more than 1 data row
     error = None
     if (data):
@@ -102,9 +109,13 @@ def loginAuthStaff():
     # cursor used to send queries
     cursor = conn.cursor()
 
+    # hash password
+    pass_encoded = password.encode()
+    pass_hash = md5(pass_encoded).hexdigest()
+
     # executes query
     query = 'SELECT * FROM airline_staff WHERE username = %s and password = %s'
-    cursor.execute(query, (username, password))
+    cursor.execute(query, (username, pass_hash))
 
     # stores the results in a variable
     data = cursor.fetchone()
@@ -164,6 +175,10 @@ def registerAuthCustomer():
     # stores the results in a variable
     data = cursor.fetchone()
 
+    # create password hash
+    pass_encoded = password.encode()
+    pass_hash = md5(pass_encoded).hexdigest()
+
     # use fetchall() if you are expecting more than 1 data row
     error = None
     if data:
@@ -175,7 +190,7 @@ def registerAuthCustomer():
                     building_num, street, city, state, passport_num,
                     passport_exp, passport_country, date_of_birth)
                     VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''
-        cursor.execute(ins, (email, name, password, building_num, street, city,
+        cursor.execute(ins, (email, name, pass_hash, building_num, street, city,
                              state, passport_num, passport_exp, passport_country, date_of_birth))
         conn.commit()
 
@@ -210,6 +225,10 @@ def registerAuthStaff():
     # stores the results in a variable
     data = cursor.fetchone()
 
+    # create password hash
+    pass_encoded = password.encode()
+    pass_hash = md5(pass_encoded).hexdigest()
+
     # use fetchall() if you are expecting more than 1 data row
     error = None
     if data:
@@ -219,7 +238,7 @@ def registerAuthStaff():
     else:
         ins = '''INSERT INTO airline_staff (username, password, first_name, last_name, date_of_birth, airline_name)
                     VALUES(%s, %s, %s, %s, %s, %s)'''
-        cursor.execute(ins, (username, password, first_name, last_name, date_of_birth, airline_name))
+        cursor.execute(ins, (username, pass_hash, first_name, last_name, date_of_birth, airline_name))
         conn.commit()
         session['username'] = username
 
@@ -1208,3 +1227,5 @@ app.secret_key = 'some key that you will never guess'
 # for changes to go through, TURN OFF FOR PRODUCTION
 if __name__ == "__main__":
     app.run('127.0.0.1', 5000, debug=True)
+
+#test

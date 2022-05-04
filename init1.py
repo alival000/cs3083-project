@@ -200,7 +200,7 @@ def registerAuthCustomer():
         cursor.execute(ins, (email, phone_num))
         conn.commit()
 
-        session['username'] = name
+        session['username'] = email
 
         query = "SELECT * \
                 FROM customer \
@@ -523,7 +523,8 @@ def customer_statistics():
                                          WHERE airline_name = %s
                                          AND purchases_date >= NOW() - INTERVAL 1 YEAR
                                          AND purchases_date <= NOW()
-                                         GROUP BY customer_email) as a) as b
+                                         GROUP BY customer_email
+                                         ORDER BY total_tickets DESC) as a) as b
                WHERE customer.Email = b.customer_email;'''
     cursor.execute(query, (airline_name))
     freq_customer = cursor.fetchall()
@@ -925,6 +926,7 @@ def bookOneWayFinal():
         query = 'SELECT * FROM flight WHERE flight_num = %s'
         cursor.execute(query, departing_flight_id)
         result = cursor.fetchone()
+        print(cust_email)
 
         if(result):
         # If the previous query returns data, then user exists

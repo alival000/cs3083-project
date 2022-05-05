@@ -11,12 +11,15 @@
     </style>
 </head>
 <body>
+{% if not error %}
     <h2>Flight successfully booked</h2>
+{% endif %}
 </br>
 {% if error %}
   <h1>Invalid flight number.</h1>
   <a href="/">Try again</a>
 {% endif %}
+
 
 <form action="/goBack" method="POST">
   <input type="submit" name="customer" value = "Go Back"/></form>

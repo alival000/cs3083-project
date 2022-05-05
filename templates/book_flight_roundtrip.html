@@ -67,7 +67,17 @@
         <option value="First">First Class</option>
         <option value="Business">Business Class</option>
         <option value="Economy">Economy</option>
+      </select></br></br>
+
+      <label for="payment_type">Payment Information</label></br>
+      <select id="payment_type" name="payment_type">
+        <option value="Credit">Credit</option>
+        <option value="Debit">Debit</option>
       </select></br>
+      <input type="number" name="card_num" placeholder="card number" required/></br>
+      <label>Card Expiration Date</label>
+      <input type="date" name="card_exp" required/></br>
+      <input type="number" name="card_pin" placeholder="security pin" required/></br>
       <input type="submit" value="Book"/>
     </form>
   {% endif %}

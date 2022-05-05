@@ -876,6 +876,11 @@ def bookRoundtripFinal():
         departing_flight_id = request.form['departingflight']
         arriving_flight_id = request.form['returningflight']
         Travel_class = request.form['Travel_class']
+        payment_type = request.form['payment_type']
+        card_num = request.form['card_num']
+        card_exp = request.form['card_exp']
+        card_pin = request.form['card_pin']
+
         cursor = conn.cursor()
 
         cust_email = session['username']
@@ -894,9 +899,10 @@ def bookRoundtripFinal():
                 cursor.execute(ins1, (ticket_id1, cust_email, Travel_class, result1['Airline_name'], departing_flight_id))
                 conn.commit()
                 purchase1 = '''INSERT INTO purchases (Ticket_id, Customer_email, purchases_date,
-                        purchases_time, sold_price)
-                        VALUES(%s, %s, NOW(), NOW(), %s)'''
-                cursor.execute(purchase1, (ticket_id1, cust_email, result1['Base_price']))
+                        purchases_time, sold_price, payment_type, card_num, card_exp, card_pin)
+                        VALUES(%s, %s, NOW(), NOW(), %s, %s, %s, %s, %s)'''
+                cursor.execute(purchase1, (ticket_id1, cust_email, result1['Base_price'], payment_type, card_num,
+                                           card_exp, card_pin))
                 conn.commit()
 
                 ins2 = '''INSERT INTO ticket (Ticket_id, Customer_email, Travel_class,
@@ -905,9 +911,10 @@ def bookRoundtripFinal():
                 cursor.execute(ins2, (ticket_id2, cust_email, Travel_class, result2['Airline_name'], arriving_flight_id))
                 conn.commit()
                 purchase2 = '''INSERT INTO purchases (Ticket_id, Customer_email, purchases_date,
-                            purchases_time, sold_price)
-                            VALUES(%s, %s, NOW(), NOW(), %s)'''
-                cursor.execute(purchase2, (ticket_id2, cust_email, result2['Base_price']))
+                            purchases_time, sold_price, payment_type, card_num, card_exp, card_pin)
+                            VALUES(%s, %s, NOW(), NOW(), %s, %s, %s, %s, %s)'''
+                cursor.execute(purchase2, (ticket_id2, cust_email, result2['Base_price'], payment_type, card_num,
+                                           card_exp, card_pin))
                 conn.commit()
                 cursor.close()
                 return render_template("booking_confirmation.html")
@@ -920,6 +927,10 @@ def bookOneWayFinal():
         ticket_id = str(random.randint(0, 1000000))
         departing_flight_id = request.form['departingflight']
         Travel_class = request.form['Travel_class']
+        payment_type = request.form['payment_type']
+        card_num = request.form['card_num']
+        card_exp = request.form['card_exp']
+        card_pin = request.form['card_pin']
         cursor = conn.cursor()
 
         cust_email = session['username']
@@ -936,9 +947,10 @@ def bookOneWayFinal():
             cursor.execute(ins, (ticket_id, cust_email, Travel_class, result['Airline_name'], departing_flight_id))
             conn.commit()
             purchase = '''INSERT INTO purchases (Ticket_id, Customer_email, purchases_date,
-                    purchases_time, sold_price)
-                    VALUES(%s, %s, NOW(), NOW(), %s)'''
-            cursor.execute(purchase, (ticket_id, cust_email, result['Base_price']))
+                    purchases_time, sold_price, payment_type, card_num, card_exp, card_pin)
+                    VALUES(%s, %s, NOW(), NOW(), %s, %s, %s, %s, %s)'''
+            cursor.execute(purchase, (ticket_id, cust_email, result['Base_price'], payment_type, card_num,
+                                      card_exp, card_pin))
             conn.commit()
             cursor.close()
             return render_template("booking_confirmation.html")
